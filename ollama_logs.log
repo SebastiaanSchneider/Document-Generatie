@@ -1,0 +1,5 @@
+2024-09-19 11:35:01,787 - ERROR - Failed to connect to Ollama: 404 Client Error: Not Found for url: http://127.0.0.1:11434/api/generate
+2024-09-19 11:35:01,788 - ERROR - Failed to generate response from Ollama.
+2024-09-19 11:35:06,123 - INFO - User chose to exit.
+2024-09-19 11:35:56,441 - ERROR - Failed to connect to Ollama: 404 Client Error: Not Found for url: http://127.0.0.1:11434/api/generate
+2024-09-19 11:35:56,442 - ERROR - Failed to generate response from Ollama.

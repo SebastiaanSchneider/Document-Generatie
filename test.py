@@ -19,10 +19,13 @@ logging.basicConfig(filename="ollama_logs.log", level=logging.INFO,
 MODEL = "llama3.1"
 
 
+# curl http://127.0.0.1:11434/api/generate -d '{"model": "llama3.1", "messages": [{"role": "user", "content": "write five short prompts for a dnd adventure."}], "stream": false}' # pylint: disable=line-too-long
+# curl http://127.0.0.1:11434/api/generate -d "{\"model\": \"llama3.1\", \"messages\": [{\"role\": \"user\", \"content\": \"write five short prompts for a dnd adventure.\"}], \"stream\": false}" -H "Content-Type: application/json" # pylint: disable=line-too-long
+
 def chat(messages, print_to_console=True):
     """Send a chat message to the Ollama API and stream the response."""
     try:
-        r = requests.post("http://127.0.0.1:11434/api/chat",
+        r = requests.post("http://127.0.0.1:11434/api/generate",
                           json={"model": MODEL, "messages": messages,
                                 "stream": True}, stream=True, timeout=10)
         r.raise_for_status()
