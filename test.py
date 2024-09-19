@@ -18,16 +18,18 @@ logging.basicConfig(filename="ollama_logs.log", level=logging.INFO,
 # NOTE: ollama must be running for this to work, start the ollama app or run `ollama serve`
 MODEL = "llama3.1"
 
-
-# curl http://127.0.0.1:11434/api/generate -d '{"model": "llama3.1", "messages": [{"role": "user", "content": "write five short prompts for a dnd adventure."}], "stream": false}' # pylint: disable=line-too-long
-# curl http://127.0.0.1:11434/api/generate -d "{\"model\": \"llama3.1\", \"messages\": [{\"role\": \"user\", \"content\": \"write five short prompts for a dnd adventure.\"}], \"stream\": false}" -H "Content-Type: application/json" # pylint: disable=line-too-long
-
 def chat(messages, print_to_console=True):
     """Send a chat message to the Ollama API and stream the response."""
     try:
-        r = requests.post("http://127.0.0.1:11434/api/generate",
+
+        # dinges = {"model": MODEL, "messages": messages,
+        #         "stream": False}
+
+        # print(dinges)
+
+        r = requests.post("http://ollama.heldeninict.nl/api/chat",
                           json={"model": MODEL, "messages": messages,
-                                "stream": True}, stream=True, timeout=10)
+                                "stream": True, "temperature": 0.4}, timeout=10)
         r.raise_for_status()
         logging.info("Request to Ollama was successful.")
     except requests.exceptions.RequestException as e:
@@ -95,8 +97,9 @@ def main():
     """Main function to interact with the user and generate a report."""
     args = parse_arguments()
 
-    messages = [
-        "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang.\n"]  # pylint: disable=line-too-long
+    messages = []
+    # je bent een dit, gedraag je zo
+    text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang.\n"  # pylint: disable=line-too-long
 
     while True:
         user_input = input(
@@ -106,7 +109,7 @@ def main():
             logging.info("No user input. Program exited.")
             break
 
-        messages.append({"role": "user", "content": user_input})
+        messages.append({"role": "user", "content": text + user_input})
         message = chat(messages, print_to_console=args.print)
 
         if message:
@@ -118,7 +121,7 @@ def main():
         # Ask if the user wants to create another report
         retry = input(
             "Do you want to create another report? (yes/no): ").strip().lower()
-        if retry != 'yes':
+        if retry != 'yes' or 'y' or 'ja' or'j':
             logging.info("User chose to exit.")
             break
 
@@ -126,5 +129,14 @@ def main():
 if __name__ == "__main__":
     main()
 
+# was er wel/niet
+# heeft aan doelen gewerkt?
+# was in goede bui of niet?
+# bijzonderheden?
+
+# nee komt er uberhaupt niet in
 
 # het gaat over Pietje. Pietje was vandaag op tijd aanwezig. Hij heeft met meerdere mensen samengewerkt. Dat ging goed, waarmee hij stappen heeft gemaakt ten opzichte van zijn leerdoelen. hij ging wel wat eerder naar huis, waar hij nog verder aan moet werken. Hij ging goed om met andere aanwezigen. Samen hebben ze aan een project gewerkt in de programmeertaal Python. Er waren geen bijzonderheden. # pylint: disable=line-too-long
+
+# curl http://127.0.0.1:11434/api/generate -d '{"model": "llama3.1", "messages": [{"role": "user", "content": "write five short prompts for a dnd adventure."}], "stream": false}' # pylint: disable=line-too-long
+# curl http://ollama.heldeninict.nl/api/chat -d "{\"model\": \"llama3.1\", \"messages\": [{\"role\": \"user\", \"content\": \"write five short prompts for a dnd adventure.\"}], \"stream\": false}" -H "Content-Type: application/json" # pylint: disable=line-too-long

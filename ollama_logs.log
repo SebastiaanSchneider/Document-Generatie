@@ -3,3 +3,29 @@
 2024-09-19 11:35:06,123 - INFO - User chose to exit.
 2024-09-19 11:35:56,441 - ERROR - Failed to connect to Ollama: 404 Client Error: Not Found for url: http://127.0.0.1:11434/api/generate
 2024-09-19 11:35:56,442 - ERROR - Failed to generate response from Ollama.
+2024-09-19 13:10:55,193 - ERROR - Failed to connect to Ollama: 400 Client Error: Bad Request for url: http://ollama.heldeninict.nl/api/chat
+2024-09-19 13:10:55,193 - ERROR - Failed to generate response from Ollama.
+2024-09-19 13:13:22,785 - INFO - User chose to exit.
+2024-09-19 13:13:29,433 - ERROR - Failed to connect to Ollama: 400 Client Error: Bad Request for url: http://ollama.heldeninict.nl/api/chat
+2024-09-19 13:13:29,434 - ERROR - Failed to generate response from Ollama.
+2024-09-19 13:20:08,256 - INFO - User chose to exit.
+2024-09-19 13:20:26,288 - INFO - Request to Ollama was successful.
+2024-09-19 13:20:26,340 - INFO - Document saved as: documents\ollama_output_2024-09-19_13-20.docx
+2024-09-19 13:21:12,604 - INFO - User chose to exit.
+2024-09-19 13:21:18,548 - INFO - Request to Ollama was successful.
+2024-09-19 13:21:18,585 - INFO - Document saved as: documents\ollama_output_2024-09-19_13-21.docx
+2024-09-19 13:21:21,398 - INFO - User chose to exit.
+2024-09-19 13:23:32,994 - INFO - Request to Ollama was successful.
+2024-09-19 13:23:33,029 - INFO - Document saved as: documents\ollama_output_2024-09-19_13-23.docx
+2024-09-19 13:25:39,859 - INFO - User chose to exit.
+2024-09-19 13:26:02,199 - INFO - Request to Ollama was successful.
+2024-09-19 13:26:02,227 - INFO - Document saved as: documents\ollama_output_2024-09-19_13-26.docx
+2024-09-19 13:26:37,997 - INFO - User chose to exit.
+2024-09-19 13:26:42,018 - INFO - Request to Ollama was successful.
+2024-09-19 13:26:42,047 - INFO - Document saved as: documents\ollama_output_2024-09-19_13-26.docx
+2024-09-19 13:27:25,072 - INFO - Request to Ollama was successful.
+2024-09-19 13:27:25,099 - INFO - Document saved as: documents\ollama_output_2024-09-19_13-27.docx
+2024-09-19 14:03:54,541 - INFO - No user input. Program exited.
+2024-09-19 14:06:18,332 - INFO - Request to Ollama was successful.
+2024-09-19 14:06:18,365 - INFO - Document saved as: documents\ollama_output_2024-09-19_14-06.docx
+2024-09-19 14:14:48,030 - INFO - User chose to exit.
