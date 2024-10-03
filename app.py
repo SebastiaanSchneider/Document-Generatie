@@ -10,6 +10,7 @@ import requests
 from flask import Flask, render_template, request, send_from_directory, flash
 from docx import Document
 
+
 # Flask setup
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for flashing messages
