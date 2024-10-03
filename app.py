@@ -121,7 +121,7 @@ def main():
         # Ask if the user wants to create another report
         retry = input(
             "Do you want to create another report? (yes/no): ").strip().lower()
-        if retry != 'yes' or 'y' or 'ja' or'j':
+        if retry != 'yes' or 'y' or 'ja' or 'j':
             logging.info("User chose to exit.")
             break
 
