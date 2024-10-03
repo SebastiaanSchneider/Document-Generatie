@@ -2,12 +2,12 @@
 Document generatie voor verslagen dagbesteding
 """
 
-from flask import Flask, render_template, request, send_from_directory, flash
 from datetime import datetime
 import os
 import json
 import logging
 import requests
+from flask import Flask, render_template, request, send_from_directory, flash
 from docx import Document
 
 # Flask setup
@@ -31,14 +31,14 @@ def chat(messages):
         r.raise_for_status()
         logging.info("Request to Ollama was successful.")
     except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to connect to Ollama: {e}")
+        logging.error(f"Failed to connect to Ollama: {e}") # pylint: disable=logging-fstring-interpolation
         return None
 
     output = ""
     for line in r.iter_lines():
         body = json.loads(line)
         if "error" in body:
-            logging.error(f"Error in Ollama response: {body['error']}")
+            logging.error(f"Error in Ollama response: {body['error']}") # pylint: disable=logging-fstring-interpolation
             return None
         if body.get("done") is False:
             message = body.get("message", "")
@@ -66,7 +66,7 @@ def save_to_docx(content, output_dir="documents"):
     doc.add_paragraph(content)
     doc.save(file_path)
 
-    logging.info(f"Document saved as: {file_path}")
+    logging.info(f"Document saved as: {file_path}") # pylint: disable=logging-fstring-interpolation
     return file_path
 
 
@@ -79,7 +79,7 @@ def index():
             flash("Please provide input for the report.", "error")
             return render_template('index.html')
 
-        text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang.\n"
+        text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. Geef het een opmaak met kopjes.\n"  # pylint: disable=line-too-long
         messages = [{"role": "user", "content": text + user_input}]
 
         # Call the Ollama API

@@ -44,3 +44,110 @@
 2024-10-03 11:44:46,273 - INFO - Document saved as: documents\ollama_output_2024-10-03_11-44.docx
 2024-10-03 11:44:46,274 - INFO - 127.0.0.1 - - [03/Oct/2024 11:44:46] "POST / HTTP/1.1" 200 -
 2024-10-03 11:44:48,325 - INFO - 127.0.0.1 - - [03/Oct/2024 11:44:48] "GET /documents/ollama_output_2024-10-03_11-44.docx HTTP/1.1" 200 -
+2024-10-03 13:03:17,110 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:03:17,110 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:03:17,115 - INFO -  * Restarting with stat
+2024-10-03 13:03:17,728 - WARNING -  * Debugger is active!
+2024-10-03 13:03:17,734 - INFO -  * Debugger PIN: 446-817-913
+2024-10-03 13:03:58,870 - INFO -  * Detected change in 'c:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:03:58,914 - INFO -  * Restarting with stat
+2024-10-03 13:03:59,591 - WARNING -  * Debugger is active!
+2024-10-03 13:03:59,594 - INFO -  * Debugger PIN: 446-817-913
+2024-10-03 13:04:10,642 - INFO -  * Detected change in 'c:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:04:10,682 - INFO -  * Restarting with stat
+2024-10-03 13:04:11,345 - WARNING -  * Debugger is active!
+2024-10-03 13:04:11,348 - INFO -  * Debugger PIN: 446-817-913
+2024-10-03 13:04:15,677 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:04:15,677 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:04:15,681 - INFO -  * Restarting with stat
+2024-10-03 13:04:16,287 - WARNING -  * Debugger is active!
+2024-10-03 13:04:16,290 - INFO -  * Debugger PIN: 446-817-913
+2024-10-03 13:04:22,210 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:04:22,210 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:04:22,213 - INFO -  * Restarting with stat
+2024-10-03 13:04:22,902 - WARNING -  * Debugger is active!
+2024-10-03 13:04:22,906 - INFO -  * Debugger PIN: 446-817-913
+2024-10-03 13:04:27,928 - INFO -  * Detected change in 'c:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:04:27,973 - INFO -  * Restarting with stat
+2024-10-03 13:04:52,000 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:04:52,000 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:04:52,003 - INFO -  * Restarting with stat
+2024-10-03 13:04:52,612 - WARNING -  * Debugger is active!
+2024-10-03 13:04:52,612 - INFO -  * Debugger PIN: 446-817-913
+2024-10-03 13:06:40,023 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:06:40,023 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:06:40,039 - INFO -  * Restarting with stat
+2024-10-03 13:06:40,620 - WARNING -  * Debugger is active!
+2024-10-03 13:06:40,633 - INFO -  * Debugger PIN: 446-817-913
+2024-10-03 13:07:34,806 - INFO -  * Detected change in 'c:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:07:34,860 - INFO -  * Restarting with stat
+2024-10-03 13:07:40,145 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:07:40,145 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:10:23,512 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:10:23,527 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:10:23,529 - INFO -  * Restarting with stat
+2024-10-03 13:10:24,095 - WARNING -  * Debugger is active!
+2024-10-03 13:10:24,101 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:11:02,582 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:11:02,582 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:11:02,586 - INFO -  * Restarting with stat
+2024-10-03 13:11:03,190 - WARNING -  * Debugger is active!
+2024-10-03 13:11:03,190 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:16:02,183 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:16:02,183 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:16:02,187 - INFO -  * Restarting with stat
+2024-10-03 13:16:02,832 - WARNING -  * Debugger is active!
+2024-10-03 13:16:02,837 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:16:18,895 - INFO -  * Detected change in 'c:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:16:18,944 - INFO -  * Restarting with stat
+2024-10-03 13:16:19,595 - WARNING -  * Debugger is active!
+2024-10-03 13:16:19,598 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:16:37,672 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:16:37,672 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:16:37,675 - INFO -  * Restarting with stat
+2024-10-03 13:16:38,250 - WARNING -  * Debugger is active!
+2024-10-03 13:16:38,255 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:18:51,385 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:18:51,385 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:18:51,389 - INFO -  * Restarting with stat
+2024-10-03 13:18:51,989 - WARNING -  * Debugger is active!
+2024-10-03 13:18:51,995 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:20:53,654 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 13:20:53,655 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 13:20:53,657 - INFO -  * Restarting with stat
+2024-10-03 13:20:55,425 - WARNING -  * Debugger is active!
+2024-10-03 13:20:55,430 - INFO -  * Debugger PIN: 113-221-543
+2024-10-03 13:21:11,487 - INFO - 127.0.0.1 - - [03/Oct/2024 13:21:11] "GET / HTTP/1.1" 200 -
+2024-10-03 13:21:11,652 - INFO - 127.0.0.1 - - [03/Oct/2024 13:21:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-10-03 13:40:10,412 - INFO -  * Detected change in 'C:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:40:10,478 - INFO -  * Restarting with stat
+2024-10-03 13:40:11,260 - WARNING -  * Debugger is active!
+2024-10-03 13:40:11,265 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:40:45,386 - INFO -  * Detected change in 'C:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:40:45,430 - INFO -  * Restarting with stat
+2024-10-03 13:40:46,104 - WARNING -  * Debugger is active!
+2024-10-03 13:40:46,108 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:41:06,215 - INFO -  * Detected change in 'C:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:41:06,256 - INFO -  * Restarting with stat
+2024-10-03 13:41:06,950 - WARNING -  * Debugger is active!
+2024-10-03 13:41:06,954 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:41:24,017 - INFO -  * Detected change in 'C:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:41:24,064 - INFO -  * Restarting with stat
+2024-10-03 13:41:24,690 - WARNING -  * Debugger is active!
+2024-10-03 13:41:24,694 - INFO -  * Debugger PIN: 839-816-347
+2024-10-03 13:41:58,809 - INFO -  * Detected change in 'C:\\Users\\the_b\\Documents\\Programming\\Document Generatie\\app.py', reloading
+2024-10-03 13:41:58,850 - INFO -  * Restarting with stat
+2024-10-03 13:41:59,496 - WARNING -  * Debugger is active!
+2024-10-03 13:41:59,500 - INFO -  * Debugger PIN: 839-816-347
