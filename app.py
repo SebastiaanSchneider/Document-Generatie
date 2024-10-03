@@ -2,132 +2,108 @@
 Document generatie voor verslagen dagbesteding
 """
 
-import argparse
-from datetime import datetime  # Importing datetime module
+from flask import Flask, render_template, request, send_from_directory, flash
+from datetime import datetime
+import os
 import json
 import logging
-import os
 import requests
-from docx import Document  # Importing the python-docx library
+from docx import Document
 
+# Flask setup
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Required for flashing messages
 
 # Setup logging
 logging.basicConfig(filename="ollama_logs.log", level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-# NOTE: ollama must be running for this to work, start the ollama app or run `ollama serve`
+# NOTE: ollama must be running for this to work
 MODEL = "llama3.1"
 
-def chat(messages, print_to_console=True):
+
+def chat(messages):
     """Send a chat message to the Ollama API and stream the response."""
     try:
-
-        # dinges = {"model": MODEL, "messages": messages,
-        #         "stream": False}
-
-        # print(dinges)
-
         r = requests.post("http://ollama.heldeninict.nl/api/chat",
                           json={"model": MODEL, "messages": messages,
                                 "stream": True, "temperature": 0.4}, timeout=10)
         r.raise_for_status()
         logging.info("Request to Ollama was successful.")
     except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to connect to Ollama: {e}") # pylint: disable=logging-fstring-interpolation
-        print(f"Error: Could not connect to Ollama. {e}")
+        logging.error(f"Failed to connect to Ollama: {e}")
         return None
 
     output = ""
-
     for line in r.iter_lines():
         body = json.loads(line)
         if "error" in body:
-            logging.error(f"Error in Ollama response: {body['error']}") # pylint: disable=logging-fstring-interpolation
-            print(f"Error in response: {body['error']}")
+            logging.error(f"Error in Ollama response: {body['error']}")
             return None
         if body.get("done") is False:
             message = body.get("message", "")
             content = message.get("content", "")
             output += content
-            if print_to_console:
-                print(content, end="", flush=True)
 
         if body.get("done", False):
             message["content"] = output
             return message
 
-    # Handle case when no message was returned
     logging.warning("No content received from Ollama.")
-    print("Warning: No content received.")
     return None
 
 
 def save_to_docx(content, output_dir="documents"):
     """Save the generated content to a .docx file with a timestamped filename."""
-    # Create directory if it doesn't exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Get the current date and time
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
     filename = f"ollama_output_{current_time}.docx"
     file_path = os.path.join(output_dir, filename)
 
-    # Create and save the document
     doc = Document()
     doc.add_paragraph(content)
     doc.save(file_path)
 
-    logging.info(f"Document saved as: {file_path}") # pylint: disable=logging-fstring-interpolation
-    print(f"Document saved as: {file_path}")
+    logging.info(f"Document saved as: {file_path}")
+    return file_path
 
 
-def parse_arguments():
-    """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Generate a report using Ollama and save it as a .docx file.")
-    parser.add_argument('-o', '--output_dir', default="documents",
-                        help="Directory to save the output .docx file")
-    parser.add_argument('-p', '--print', action='store_true',
-                        help="Print the output to the console")
-    return parser.parse_args()
-
-
-def main():
-    """Main function to interact with the user and generate a report."""
-    args = parse_arguments()
-
-    messages = []
-    # je bent een dit, gedraag je zo
-    text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang.\n"  # pylint: disable=line-too-long
-
-    while True:
-        user_input = input(
-            "Over wie gaat het en wat moet er in het verslag?: ")
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    """Render the form and handle document generation requests."""
+    if request.method == 'POST':
+        user_input = request.form['input_text']
         if not user_input:
-            print("No input provided. Exiting...")
-            logging.info("No user input. Program exited.")
-            break
+            flash("Please provide input for the report.", "error")
+            return render_template('index.html')
 
-        messages.append({"role": "user", "content": text + user_input})
-        message = chat(messages, print_to_console=args.print)
+        text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang.\n"
+        messages = [{"role": "user", "content": text + user_input}]
+
+        # Call the Ollama API
+        message = chat(messages)
 
         if message:
-            save_to_docx(message['content'], output_dir=args.output_dir)
+            # Save the document and provide download link
+            file_path = save_to_docx(message['content'])
+            return render_template('index.html', success=True, filename=os.path.basename(file_path))
         else:
-            logging.error("Failed to generate response from Ollama.")
-            print("Failed to generate response.")
+            flash("Failed to generate the report.", "error")
 
-        # Ask if the user wants to create another report
-        retry = input(
-            "Do you want to create another report? (yes/no): ").strip().lower()
-        if retry != 'yes' or 'y' or 'ja' or 'j':
-            logging.info("User chose to exit.")
-            break
+    return render_template('index.html')
 
 
-if __name__ == "__main__":
-    main()
+@app.route('/documents/<filename>')
+def download_file(filename):
+    """Serve the generated document for download."""
+    return send_from_directory('documents', filename)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 # was er wel/niet
 # heeft aan doelen gewerkt?

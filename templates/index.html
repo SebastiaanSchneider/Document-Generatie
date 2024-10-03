@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Generation</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1>Generate a Report for Dagbesteding</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="alert alert-danger">
+            {{ messages[0][1] }}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="input_text">Enter details for the report:</label>
+                <textarea class="form-control" id="input_text" name="input_text" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Report</button>
+        </form>
+
+        {% if success %}
+        <div class="alert alert-success mt-3">
+            Report generated successfully! <a href="/documents/{{ filename }}" class="alert-link">Download the report
+                here</a>.
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

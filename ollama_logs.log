@@ -32,3 +32,15 @@
 2024-10-03 10:19:39,169 - INFO - Request to Ollama was successful.
 2024-10-03 10:19:39,209 - INFO - Document saved as: documents\ollama_output_2024-10-03_10-19.docx
 2024-10-03 10:19:59,704 - INFO - User chose to exit.
+2024-10-03 11:44:25,735 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-10-03 11:44:25,735 - INFO - [33mPress CTRL+C to quit[0m
+2024-10-03 11:44:25,740 - INFO -  * Restarting with stat
+2024-10-03 11:44:26,316 - WARNING -  * Debugger is active!
+2024-10-03 11:44:26,316 - INFO -  * Debugger PIN: 446-817-913
+2024-10-03 11:44:38,201 - INFO - 127.0.0.1 - - [03/Oct/2024 11:44:38] "GET / HTTP/1.1" 200 -
+2024-10-03 11:44:38,308 - INFO - 127.0.0.1 - - [03/Oct/2024 11:44:38] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-10-03 11:44:46,215 - INFO - Request to Ollama was successful.
+2024-10-03 11:44:46,273 - INFO - Document saved as: documents\ollama_output_2024-10-03_11-44.docx
+2024-10-03 11:44:46,274 - INFO - 127.0.0.1 - - [03/Oct/2024 11:44:46] "POST / HTTP/1.1" 200 -
+2024-10-03 11:44:48,325 - INFO - 127.0.0.1 - - [03/Oct/2024 11:44:48] "GET /documents/ollama_output_2024-10-03_11-44.docx HTTP/1.1" 200 -
