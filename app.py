@@ -2,14 +2,16 @@
 Document generatie voor verslagen dagbesteding
 """
 
+
 # Added send_from_directory
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
 from datetime import datetime
 import os
 import json
 import logging
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
 import requests
 from docx import Document
+
 
 # Flask setup
 app = Flask(__name__)
@@ -30,17 +32,16 @@ def chat(messages, temperature):
                           json={"model": MODEL, "messages": messages,
                                 "stream": True, "temperature": temperature}, timeout=10)
         r.raise_for_status()
-        logging.info(f"Request to Ollama with temperature {
-                     temperature} was successful.")
+        logging.info(f"Request to Ollama with temperature {temperature} was successful.")  # pylint: disable=logging-fstring-interpolation
     except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to connect to Ollama: {e}")
+        logging.error(f"Failed to connect to Ollama: {e}") # pylint: disable=logging-fstring-interpolation
         return None
 
     output = ""
     for line in r.iter_lines():
         body = json.loads(line)
         if "error" in body:
-            logging.error(f"Error in Ollama response: {body['error']}")
+            logging.error(f"Error in Ollama response: {body['error']}") # pylint: disable=logging-fstring-interpolation
             return None
         if body.get("done") is False:
             message = body.get("message", "")
@@ -68,14 +69,14 @@ def save_to_docx(content, output_dir="documents"):
     doc.add_paragraph(content)
     doc.save(file_path)
 
-    logging.info(f"Document saved as: {file_path}")
+    logging.info(f"Document saved as: {file_path}") # pylint: disable=logging-fstring-interpolation
     return file_path
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     """Render the form and handle document generation requests."""
-    generated_versions = {}  # Dictionary to hold versions for different temperatures
+    generated_versions = {} # Dictionary to hold versions for different temperatures
 
     if request.method == 'POST':
         user_input = request.form['input_text']
@@ -83,7 +84,7 @@ def index():
             flash("Please provide input for the report.", "error")
             return render_template('index.html')
 
-        text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang.\n"
+        text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. Geef het een opmaak met kopjes.\n" # pylint: disable=line-too-long
         messages = [{"role": "user", "content": text + user_input}]
 
         # Generate three versions with different temperature settings
@@ -92,8 +93,7 @@ def index():
             if message:
                 generated_versions[temp] = message['content']
             else:
-                flash(f"Failed to generate report at temperature {
-                      temp}.", "error")
+                flash(f"Failed to generate report at temperature {temp}.", "error")
 
     return render_template('index.html', generated_versions=generated_versions)
 
