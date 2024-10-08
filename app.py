@@ -2,14 +2,14 @@
 Document generatie voor verslagen dagbesteding
 """
 
+# Added send_from_directory
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
 from datetime import datetime
 import os
 import json
 import logging
 import requests
-from flask import Flask, render_template, request, send_from_directory, flash
 from docx import Document
-
 
 # Flask setup
 app = Flask(__name__)
@@ -19,27 +19,28 @@ app.secret_key = 'your_secret_key'  # Required for flashing messages
 logging.basicConfig(filename="ollama_logs.log", level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-# NOTE: ollama must be running for this to work
-MODEL = "llama3.1"
+# Updated Ollama Model
+MODEL = "llama3.2"
 
 
-def chat(messages):
-    """Send a chat message to the Ollama API and stream the response."""
+def chat(messages, temperature):
+    """Send a chat message to the Ollama API and stream the response with specified temperature."""
     try:
         r = requests.post("http://ollama.heldeninict.nl/api/chat",
                           json={"model": MODEL, "messages": messages,
-                                "stream": True, "temperature": 0.4}, timeout=10)
+                                "stream": True, "temperature": temperature}, timeout=10)
         r.raise_for_status()
-        logging.info("Request to Ollama was successful.")
+        logging.info(f"Request to Ollama with temperature {
+                     temperature} was successful.")
     except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to connect to Ollama: {e}") # pylint: disable=logging-fstring-interpolation
+        logging.error(f"Failed to connect to Ollama: {e}")
         return None
 
     output = ""
     for line in r.iter_lines():
         body = json.loads(line)
         if "error" in body:
-            logging.error(f"Error in Ollama response: {body['error']}") # pylint: disable=logging-fstring-interpolation
+            logging.error(f"Error in Ollama response: {body['error']}")
             return None
         if body.get("done") is False:
             message = body.get("message", "")
@@ -55,7 +56,7 @@ def chat(messages):
 
 
 def save_to_docx(content, output_dir="documents"):
-    """Save the generated content to a .docx file with a timestamped filename."""
+    """Save the selected content to a .docx file with a timestamped filename."""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -67,33 +68,53 @@ def save_to_docx(content, output_dir="documents"):
     doc.add_paragraph(content)
     doc.save(file_path)
 
-    logging.info(f"Document saved as: {file_path}") # pylint: disable=logging-fstring-interpolation
+    logging.info(f"Document saved as: {file_path}")
     return file_path
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     """Render the form and handle document generation requests."""
+    generated_versions = {}  # Dictionary to hold versions for different temperatures
+
     if request.method == 'POST':
         user_input = request.form['input_text']
         if not user_input:
             flash("Please provide input for the report.", "error")
             return render_template('index.html')
 
-        text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. Geef het een opmaak met kopjes.\n"  # pylint: disable=line-too-long
+        text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang.\n"
         messages = [{"role": "user", "content": text + user_input}]
 
-        # Call the Ollama API
-        message = chat(messages)
+        # Generate three versions with different temperature settings
+        for temp in [0.1, 0.4, 0.7]:
+            message = chat(messages, temperature=temp)
+            if message:
+                generated_versions[temp] = message['content']
+            else:
+                flash(f"Failed to generate report at temperature {
+                      temp}.", "error")
 
-        if message:
-            # Save the document and provide download link
-            file_path = save_to_docx(message['content'])
-            return render_template('index.html', success=True, filename=os.path.basename(file_path))
-        else:
-            flash("Failed to generate the report.", "error")
+    return render_template('index.html', generated_versions=generated_versions)
 
-    return render_template('index.html')
+
+@app.route('/save_docx/<temperature>', methods=['POST'])
+def save_docx(temperature):
+    """Save the selected version as a .docx file."""
+    content = request.form.get(f'content_{temperature}')
+    if not content:
+        flash("No content to save.", "error")
+        return redirect(url_for('index'))
+
+    # Save the selected content to a docx file
+    file_path = save_to_docx(content)
+    if file_path:
+        flash(f"Report saved successfully. Download it <a href='/documents/{
+              os.path.basename(file_path)}'>here</a>.", "success")
+    else:
+        flash("Failed to save the document.", "error")
+
+    return redirect(url_for('index'))
 
 
 @app.route('/documents/<filename>')

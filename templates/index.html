@@ -9,32 +9,68 @@
 </head>
 
 <body>
-    <div class="container mt-5">
+    <div class="container-fluid mt-5">
         <h1>Generate a Report for Dagbesteding</h1>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        <div class="alert alert-danger">
-            {{ messages[0][1] }}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message|safe }}
         </div>
+        {% endfor %}
         {% endif %}
         {% endwith %}
 
-        <form method="POST">
-            <div class="form-group">
-                <label for="input_text">Enter details for the report:</label>
-                <textarea class="form-control" id="input_text" name="input_text" rows="4" required></textarea>
+        <div class="row">
+            <!-- Narrow column for the form -->
+            <div class="col-md-2">
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="input_text">Enter details for the report:</label>
+                        <textarea class="form-control" id="input_text" name="input_text" rows="8" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary">Generate Report</button>
-        </form>
 
-        {% if success %}
-        <div class="alert alert-success mt-3">
-            Report generated successfully! <a href="/documents/{{ filename }}" class="alert-link">Download the report
-                here</a>.
+            <!-- Wide column for report previews -->
+            <div class="col-md-10">
+                <h4>Report Versions</h4>
+                <div class="row">
+                    {% if generated_versions %}
+                    {% for temp, content in generated_versions.items() %}
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <strong>Temperature {{ temp }}</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="preview-box border p-3"
+                                    style="white-space: pre-wrap; height: 400px; overflow-y: auto;">
+                                    {{ content }}
+                                </div>
+                                <form action="{{ url_for('save_docx', temperature=temp) }}" method="POST"
+                                    style="display: inline;">
+                                    <input type="hidden" name="content_{{ temp }}" value="{{ content }}">
+                                    <button type="submit" class="btn btn-success mt-3">Save as DOCX</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-center">No content generated yet. Fill out the form to create a report.</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        {% endif %}
     </div>
+
+    <!-- JavaScript for Bootstrap (Optional) -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>
 
 </html>
