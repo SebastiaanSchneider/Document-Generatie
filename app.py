@@ -76,15 +76,19 @@ def save_to_docx(content, output_dir="documents"):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     """Render the form and handle document generation requests."""
-    generated_versions = {} # Dictionary to hold versions for different temperatures
+    generated_versions = {}  # Dictionary to hold versions for different temperatures
 
     if request.method == 'POST':
         user_input = request.form['input_text']
+        # Extract selected client name
+        client_name = request.form['client_name']
+
         if not user_input:
             flash("Please provide input for the report.", "error")
             return render_template('index.html')
 
-        text = "Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. Geef het een opmaak met kopjes.\n" # pylint: disable=line-too-long
+        # Update the prompt with the client's name
+        text = f"Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. Geef het een opmaak met kopjes. Het verslag gaat over {client_name}.\n" # pylint: disable=line-too-long
         messages = [{"role": "user", "content": text + user_input}]
 
         # Generate three versions with different temperature settings
@@ -93,9 +97,11 @@ def index():
             if message:
                 generated_versions[temp] = message['content']
             else:
-                flash(f"Failed to generate report at temperature {temp}.", "error")
+                flash(f"Failed to generate report at temperature {
+                      temp}.", "error")
 
     return render_template('index.html', generated_versions=generated_versions)
+
 
 
 @app.route('/save_docx/<temperature>', methods=['POST'])
@@ -125,16 +131,3 @@ def download_file(filename):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-# was er wel/niet
-# heeft aan doelen gewerkt?
-# was in goede bui of niet?
-# bijzonderheden?
-
-# nee komt er uberhaupt niet in
-
-# het gaat over Pietje. Pietje was vandaag op tijd aanwezig. Hij heeft met meerdere mensen samengewerkt. Dat ging goed, waarmee hij stappen heeft gemaakt ten opzichte van zijn leerdoelen. hij ging wel wat eerder naar huis, waar hij nog verder aan moet werken. Hij ging goed om met andere aanwezigen. Samen hebben ze aan een project gewerkt in de programmeertaal Python. Er waren geen bijzonderheden. # pylint: disable=line-too-long
-
-# curl http://127.0.0.1:11434/api/generate -d '{"model": "llama3.1", "messages": [{"role": "user", "content": "write five short prompts for a dnd adventure."}], "stream": false}' # pylint: disable=line-too-long
-# curl http://ollama.heldeninict.nl/api/chat -d "{\"model\": \"llama3.1\", \"messages\": [{\"role\": \"user\", \"content\": \"write five short prompts for a dnd adventure.\"}], \"stream\": false}" -H "Content-Type: application/json" # pylint: disable=line-too-long
