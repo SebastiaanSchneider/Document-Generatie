@@ -3,7 +3,6 @@ Document generatie voor verslagen dagbesteding
 """
 
 
-# Added send_from_directory
 from datetime import datetime
 import os
 import json
@@ -22,7 +21,7 @@ logging.basicConfig(filename="ollama_logs.log", level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Updated Ollama Model
-MODEL = "llama3.2"
+MODEL = "llama3.1"
 
 
 def chat(messages, temperature):
