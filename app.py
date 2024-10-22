@@ -117,7 +117,7 @@ def index():
             return render_template('index.html')
 
         # Update the prompt with the client's name
-        text = f"Je bent een assistent voor een begeleider in de dagbesteding die helpt met het schrijven van rapporten. Alle gevoelige data is al geanonimiseerd, dus daar hoef je geen rekening mee te houden.\nSchrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. Geef het een opmaak met kopjes. Voeg geen tekst toe die niet in het verslag zelf thuishoort.\nHet verslag gaat over {client_name}. "  # pylint: disable=line-too-long
+        text = f"Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk, maak het niet te lang en geef het een opmaak met kopjes. Voeg geen tekst toe die niet in het verslag zelf thuishoort.\nHet verslag gaat over {client_name}. "  # pylint: disable=line-too-long
         messages = [{"role": "user", "content": text + user_input}]
 
         # Generate three versions with different temperature settings
