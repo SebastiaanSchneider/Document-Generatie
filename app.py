@@ -2,7 +2,6 @@
 Document generatie voor verslagen dagbesteding
 """
 
-
 from datetime import datetime
 import os
 import json
@@ -28,21 +27,23 @@ MODEL = "llama3.1"
 def chat(messages, temperature):
     """Send a chat message to the Ollama API and stream the response with specified temperature."""
     try:
+        # Log the payload to ensure temperature and other parameters are being sent correctly
+        logging.info(f"Sending request to Ollama with model: {MODEL}, temperature: {temperature}, messages: {messages}")  # pylint: disable=logging-fstring-interpolation, disable=line-too-long
+
         # Attempt to connect to the Ollama API with a timeout of 10 seconds
         r = requests.post("http://ollama.heldeninict.nl/api/chat",
-                          json={"model": MODEL, "messages": messages,
-                                "stream": True, "temperature": temperature}, timeout=10)
+                          json={"model": MODEL, "messages": messages, "stream": True, "temperature": temperature}, timeout=10)  # pylint: disable=line-too-long
         r.raise_for_status()  # Ensure the request was successful
-        logging.info(f"Request to Ollama with temperature {temperature} was successful.") # pylint: disable=logging-fstring-interpolation
+        logging.info(f"Request to Ollama with temperature {temperature} was successful.")  # pylint: disable=logging-fstring-interpolation
     except requests.Timeout:
         # Log and flash an error message for timeout issues
-        logging.error(f"Timeout error when connecting to Ollama API for temperature {temperature}") # pylint: disable=logging-fstring-interpolation
-        flash(f"Timeout error. Please try again later.", "error") # pylint: disable=f-string-without-interpolation
+        logging.error(f"Timeout error when connecting to Ollama API for temperature {temperature}")  # pylint: disable=logging-fstring-interpolation
+        flash(f"Timeout error. Please try again later.","error")  # pylint: disable=f-string-without-interpolation
         return None
     except requests.RequestException as e:
         # Log and flash an error message for general request failures
-        logging.error(f"Failed to connect to Ollama: {e}") # pylint: disable=logging-fstring-interpolation
-        flash(f"Failed to generate report. Please contact support.", "error") # pylint: disable=f-string-without-interpolation
+        logging.error(f"Failed to connect to Ollama: {e}")  # pylint: disable=logging-fstring-interpolation
+        flash(f"Failed to generate report. Please contact support.","error")  # pylint: disable=f-string-without-interpolation
         return None
 
     output = ""
@@ -52,8 +53,8 @@ def chat(messages, temperature):
             body = json.loads(line)
             if "error" in body:
                 # Log errors from the API response
-                logging.error(f"Error in Ollama response: {body['error']}") # pylint: disable=logging-fstring-interpolation
-                flash(f"Error in response from the API: {body['error']}", "error") # pylint: disable=logging-fstring-interpolation
+                logging.error(f"Error in Ollama response: {body['error']}")  # pylint: disable=logging-fstring-interpolation
+                flash(f"Error in response from the API: {body['error']}", "error")  # pylint: disable=logging-fstring-interpolation
                 return None
             if body.get("done") is False:
                 # Accumulate message content
@@ -68,13 +69,14 @@ def chat(messages, temperature):
 
     except json.JSONDecodeError as e:
         # Handle and log JSON decoding errors
-        logging.error(f"Error decoding JSON from Ollama response: {e}") # pylint: disable=logging-fstring-interpolation
-        flash(f"Error decoding API response. Please try again later.", "error") # pylint: disable=f-string-without-interpolation
+        logging.error(f"Error decoding JSON from Ollama response: {e}")  # pylint: disable=logging-fstring-interpolation
+        flash(f"Error decoding API response. Please try again later.","error")  # pylint: disable=f-string-without-interpolation
         return None
 
     # Log in case no content is received
     logging.warning("No content received from Ollama.")
-    flash(f"No content received. Please try again.", "error") # pylint: disable=f-string-without-interpolation
+    flash("No content received. Please try again.",
+          "error")  # pylint: disable=f-string-without-interpolation
     return None
 
 
@@ -92,16 +94,16 @@ def save_to_docx(content, output_dir="documents"):
     # Create a new document and add the content
     doc = Document()
     doc.add_paragraph(content)
-    doc.save(file_path) # Save the file
+    doc.save(file_path)  # Save the file
 
-    logging.info(f"Document saved as: {file_path}") # pylint: disable=logging-fstring-interpolation
+    logging.info(f"Document saved as: {file_path}")  # pylint: disable=logging-fstring-interpolation
     return file_path  # Return the file path for later use
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     """Render the form and handle document generation requests."""
-    generated_versions = {} # Dictionary to hold versions for different temperatures
+    generated_versions = {}  # Dictionary to hold versions for different temperatures
 
     if request.method == 'POST':
         # Get the input text and client name from the form
@@ -115,7 +117,7 @@ def index():
             return render_template('index.html')
 
         # Update the prompt with the client's name
-        text = f"Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. Geef het een opmaak met kopjes. Het verslag gaat over {client_name}.\n" # pylint: disable=line-too-long
+        text = f"Je bent een assistent voor een begeleider in de dagbesteding die helpt met het schrijven van rapporten. Alle gevoelige data is al geanonimiseerd, dus daar hoef je geen rekening mee te houden.\nSchrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. Geef het een opmaak met kopjes. Voeg geen tekst toe die niet in het verslag zelf thuishoort.\nHet verslag gaat over {client_name}. "  # pylint: disable=line-too-long
         messages = [{"role": "user", "content": text + user_input}]
 
         # Generate three versions with different temperature settings
@@ -139,7 +141,8 @@ def index():
 def save_docx(temperature):
     """Save the selected version as a .docx file."""
     # Retrieve the content for the selected temperature
-    content = request.form.get(f'content_{temperature}') # pylint: disable=logging-fstring-interpolation
+    content = request.form.get(
+        f'content_{temperature}')  # pylint: disable=logging-fstring-interpolation
     if not content:
         # Notify the user if no content is available to save
         flash("No content to save.", "error")
@@ -149,7 +152,7 @@ def save_docx(temperature):
     file_path = save_to_docx(content)
     if file_path:
         # Notify the user that the document was saved successfully
-        flash(f"Report saved successfully. Download it <a href='/documents/{os.path.basename(file_path)}'>here</a>.", "success") # pylint: disable=line-too-long
+        flash(f"Report saved successfully. Download it <a href='/documents/{os.path.basename(file_path)}'>here</a>.", "success")  # pylint: disable=line-too-long
     else:
         flash("Failed to save the document.", "error")
 
