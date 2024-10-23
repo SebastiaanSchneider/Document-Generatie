@@ -6,7 +6,7 @@ from datetime import datetime
 import os
 import json
 import logging
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, jsonify  # pylint: disable=line-too-long
 import requests
 from docx import Document
 
@@ -135,6 +135,27 @@ def index():
 
     # Render the template with the generated versions (if any)
     return render_template('index.html', generated_versions=generated_versions)
+
+
+@app.route('/adjust_response/<temperature>', methods=['POST'])
+def adjust_response(temperature):
+    """Handle adjustments to a response based on user input."""
+    data = request.get_json()
+    adjustment = data.get('adjustment', '')
+
+    # Retrieve the original response from the request or session (for simplicity)
+    original_content = request.form.get(f'content_{temperature}', '')
+
+    # Combine the original response with the user's adjustment to send to the model
+    messages = [{"role": "user", "content": f"Hier is het huidige verslag: {original_content}. {adjustment}. Pas dit aan."}] # pylint: disable=line-too-long
+
+    # Generate the updated response using Ollama
+    updated_message = chat(messages, temperature=float(temperature))  # Convert temperature to float
+    if updated_message:
+        updated_content = updated_message['content']
+        return jsonify(success=True, updated_content=updated_content)
+
+    return jsonify(success=False), 500
 
 
 @app.route('/save_docx/<temperature>', methods=['POST'])

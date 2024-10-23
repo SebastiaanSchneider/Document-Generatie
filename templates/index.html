@@ -152,8 +152,10 @@
                         <div class="card-header">
                             <strong>Temperature {{ temp }}</strong>
 
-                            <!-- Buttons moved to card-header -->
+                            <!-- Buttons in card-header -->
                             <div>
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    onclick="openAdjustModal('{{ temp }}')">Aanpassen</button>
                                 <button type="button" class="btn btn-secondary btn-sm"
                                     onclick="copyToClipboard('preview-box-{{ temp }}')">Copy to Clipboard</button>
                                 <form action="{{ url_for('save_docx', temperature=temp) }}" method="POST"
@@ -174,6 +176,32 @@
                 {% else %}
                 <p class="text-center">No content generated yet. Fill out the form to create a report.</p>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Adjustment Modal -->
+    <div class="modal fade" id="adjustModal" tabindex="-1" role="dialog" aria-labelledby="adjustModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adjustModalLabel">Aanpassen van het verslag</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="adjustForm">
+                        <div class="form-group">
+                            <label for="adjustment">Wat zou u willen veranderen?</label>
+                            <textarea class="form-control" id="adjustment" name="adjustment" rows="3"
+                                required></textarea>
+                        </div>
+                        <input type="hidden" id="adjustTemp" name="temp" value="">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -201,6 +229,43 @@
             // Trigger the Bootstrap toast notification
             alert("Copied to clipboard!");
         }
+
+        // Open the adjustment modal for a specific response
+        function openAdjustModal(temp) {
+            document.getElementById("adjustTemp").value = temp; // Set the temperature of the selected response
+            $('#adjustModal').modal('show'); // Show the modal
+        }
+
+        // Handle the submission of the adjustment form
+        document.getElementById('adjustForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent form from submitting normally
+
+            // Get the temperature and adjustment input
+            const temp = document.getElementById("adjustTemp").value;
+            const adjustment = document.getElementById("adjustment").value;
+
+            // Send the adjustment via AJAX to update the response
+            fetch(`/adjust_response/${temp}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ adjustment: adjustment }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the response content in the preview box
+                        document.getElementById(`preview-box-${temp}`).textContent = data.updated_content;
+                        $('#adjustModal').modal('hide'); // Hide the modal
+                    } else {
+                        alert('Failed to update the response.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
     </script>
 
     <!-- JavaScript for Bootstrap (Optional) -->
