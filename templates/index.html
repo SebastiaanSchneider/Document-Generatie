@@ -7,12 +7,14 @@
     <title>Report Generation</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style>
-        /* Make sure the container takes up the full viewport height */
+        /* Ensure the container takes up the full viewport height */
         html,
         body {
             height: 100%;
             margin: 0;
             padding: 0;
+            overflow: hidden;
+            /* Prevent overall page scrolling */
         }
 
         /* Use Flexbox to make the layout responsive */
@@ -23,7 +25,16 @@
             /* Full viewport height */
         }
 
-        /* Style for the main content area */
+        /* Adjust the height of the header and ensure it doesn't shrink */
+        h1 {
+            margin: 0;
+            padding: 20px 0;
+            text-align: center;
+            flex-shrink: 0;
+            /* Prevent header from shrinking */
+        }
+
+        /* Main content is flexed horizontally */
         .main-content {
             flex: 1;
             display: flex;
@@ -31,25 +42,68 @@
             justify-content: space-between;
         }
 
-        /* Each card should take up full height without scrolling */
+        /* Fixed width for the form column */
+        .form-column {
+            flex-basis: 250px;
+            padding: 10px;
+        }
+
+        /* Flexbox for equal height columns for responses */
+        .responses {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: stretch;
+        }
+
+        /* Each card should have the same width and height */
         .card {
             flex-grow: 1;
             margin: 10px;
             display: flex;
             flex-direction: column;
+            height: 100%;
+            /* Ensure cards take the full height */
+            border: 2px solid #cccccc;
+            /* More pronounced borders */
+            transition: border-color 0.3s ease;
         }
 
-        /* Ensure the card body grows to fit the content */
+        /* Darken the border on hover */
+        .card:hover {
+            border-color: #999999;
+        }
+
+        /* Ensure the card body grows to fit the full height and adds internal scrolling if needed */
         .card-body {
             flex-grow: 1;
             overflow: auto;
-            /* This will prevent scrolling if not necessary */
+            /* Internal scroll for card content */
         }
 
-        /* Ensure the form side has some space */
-        .form-column {
-            flex-basis: 250px;
-            /* Give the form a fixed width */
+        /* Keep the cards at a consistent width */
+        .col-md-4 {
+            flex: 1;
+            /* Equal width for each card */
+            max-width: 33%;
+            /* Limit the width to 1/3rd */
+            display: flex;
+            flex-direction: column;
+            /* Ensure consistent height */
+        }
+
+        /* Align buttons in card-header to the right */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Style for flash messages under the form */
+        .flash-message {
+            margin-top: 10px;
+            color: green;
         }
     </style>
 </head>
@@ -57,16 +111,6 @@
 <body>
     <div class="container-fluid">
         <h1>Generate a Report for Dagbesteding</h1>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message|safe }}
-        </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
 
         <div class="main-content">
             <!-- Narrow column for the form -->
@@ -87,45 +131,49 @@
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Generate Report</button>
+
+                    <!-- Flash message (does not affect layout) -->
+                    {% if messages %}
+                    <div class="flash-message">
+                        {% for category, message in messages %}
+                        <p>{{ message|safe }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </form>
             </div>
 
-            <!-- Wide column for report previews -->
-            <div class="row" style="flex-grow: 1;">
-                <div class="col">
-                    <h4>Report Versions</h4>
-                    <div class="row">
-                        {% if generated_versions %}
-                        {% for temp, content in generated_versions.items() %}
-                        <div class="col-md-4">
-                            <div class="card mb-3">
-                                <div class="card-header">
-                                    <strong>Temperature {{ temp }}</strong>
-                                </div>
-                                <div class="card-body">
-                                    <div class="preview-box" id="preview-box-{{ temp }}" style="white-space: pre-wrap;">
-                                        {{ content }}
-                                    </div>
+            <!-- Column for report previews -->
+            <div class="responses">
+                {% if generated_versions %}
+                {% for temp, content in generated_versions.items() %}
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <strong>Temperature {{ temp }}</strong>
 
-                                    <!-- Copy to Clipboard Button -->
-                                    <button type="button" class="btn btn-secondary mt-3"
-                                        onclick="copyToClipboard('preview-box-{{ temp }}')">Copy to Clipboard</button>
-
-                                    <!-- Save as DOCX Button -->
-                                    <form action="{{ url_for('save_docx', temperature=temp) }}" method="POST"
-                                        style="display: inline;">
-                                        <input type="hidden" name="content_{{ temp }}" value="{{ content }}">
-                                        <button type="submit" class="btn btn-success mt-3">Save as DOCX</button>
-                                    </form>
-                                </div>
+                            <!-- Buttons moved to card-header -->
+                            <div>
+                                <button type="button" class="btn btn-secondary btn-sm"
+                                    onclick="copyToClipboard('preview-box-{{ temp }}')">Copy to Clipboard</button>
+                                <form action="{{ url_for('save_docx', temperature=temp) }}" method="POST"
+                                    style="display: inline;">
+                                    <input type="hidden" name="content_{{ temp }}" value="{{ content }}">
+                                    <button type="submit" class="btn btn-success btn-sm">Save as DOCX</button>
+                                </form>
                             </div>
                         </div>
-                        {% endfor %}
-                        {% else %}
-                        <p class="text-center">No content generated yet. Fill out the form to create a report.</p>
-                        {% endif %}
+                        <div class="card-body">
+                            <div class="preview-box" id="preview-box-{{ temp }}" style="white-space: pre-wrap;">
+                                {{ content }}
+                            </div>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-center">No content generated yet. Fill out the form to create a report.</p>
+                {% endif %}
             </div>
         </div>
     </div>
