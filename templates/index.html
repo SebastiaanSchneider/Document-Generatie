@@ -7,27 +7,55 @@
     <title>Report Generation</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style>
-        /* Custom tooltip styling */
-        .tooltip-popup {
-            position: absolute;
-            background-color: #333;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 1000;
+        /* Make sure the container takes up the full viewport height */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
         }
 
-        .tooltip-popup.show {
-            opacity: 1;
+        /* Use Flexbox to make the layout responsive */
+        .container-fluid {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            /* Full viewport height */
+        }
+
+        /* Style for the main content area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        /* Each card should take up full height without scrolling */
+        .card {
+            flex-grow: 1;
+            margin: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Ensure the card body grows to fit the content */
+        .card-body {
+            flex-grow: 1;
+            overflow: auto;
+            /* This will prevent scrolling if not necessary */
+        }
+
+        /* Ensure the form side has some space */
+        .form-column {
+            flex-basis: 250px;
+            /* Give the form a fixed width */
         }
     </style>
 </head>
 
 <body>
-    <div class="container-fluid mt-5">
+    <div class="container-fluid">
         <h1>Generate a Report for Dagbesteding</h1>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -40,9 +68,9 @@
         {% endif %}
         {% endwith %}
 
-        <div class="row">
+        <div class="main-content">
             <!-- Narrow column for the form -->
-            <div class="col-md-2">
+            <div class="form-column">
                 <form method="POST">
                     <div class="form-group">
                         <label for="input_text">Enter details for the report:</label>
@@ -63,51 +91,48 @@
             </div>
 
             <!-- Wide column for report previews -->
-            <div class="col-md-10">
-                <h4>Report Versions</h4>
-                <div class="row">
-                    {% if generated_versions %}
-                    {% for temp, content in generated_versions.items() %}
-                    <div class="col-md-4">
-                        <div class="card mb-3">
-                            <div class="card-header">
-                                <strong>Temperature {{ temp }}</strong>
-                            </div>
-                            <div class="card-body">
-                                <div class="preview-box border p-3" id="preview-box-{{ temp }}"
-                                    style="white-space: pre-wrap; height: 400px; overflow-y: auto;">
-                                    {{ content }}
+            <div class="row" style="flex-grow: 1;">
+                <div class="col">
+                    <h4>Report Versions</h4>
+                    <div class="row">
+                        {% if generated_versions %}
+                        {% for temp, content in generated_versions.items() %}
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <strong>Temperature {{ temp }}</strong>
                                 </div>
+                                <div class="card-body">
+                                    <div class="preview-box" id="preview-box-{{ temp }}" style="white-space: pre-wrap;">
+                                        {{ content }}
+                                    </div>
 
-                                <!-- Copy to Clipboard Button -->
-                                <button type="button" class="btn btn-secondary mt-3"
-                                    onclick="copyToClipboard('preview-box-{{ temp }}', event)">Copy to
-                                    Clipboard</button>
+                                    <!-- Copy to Clipboard Button -->
+                                    <button type="button" class="btn btn-secondary mt-3"
+                                        onclick="copyToClipboard('preview-box-{{ temp }}')">Copy to Clipboard</button>
 
-                                <!-- Save as DOCX Button -->
-                                <form action="{{ url_for('save_docx', temperature=temp) }}" method="POST"
-                                    style="display: inline;">
-                                    <input type="hidden" name="content_{{ temp }}" value="{{ content }}">
-                                    <button type="submit" class="btn btn-success mt-3">Save as DOCX</button>
-                                </form>
+                                    <!-- Save as DOCX Button -->
+                                    <form action="{{ url_for('save_docx', temperature=temp) }}" method="POST"
+                                        style="display: inline;">
+                                        <input type="hidden" name="content_{{ temp }}" value="{{ content }}">
+                                        <button type="submit" class="btn btn-success mt-3">Save as DOCX</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="text-center">No content generated yet. Fill out the form to create a report.</p>
+                        {% endif %}
                     </div>
-                    {% endfor %}
-                    {% else %}
-                    <p class="text-center">No content generated yet. Fill out the form to create a report.</p>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tooltip div -->
-    <div id="tooltip" class="tooltip-popup">Copied!</div>
-
     <!-- JavaScript for Clipboard Copy Function -->
     <script>
-        function copyToClipboard(elementId, event) {
+        function copyToClipboard(elementId) {
             // Find the element containing the report content
             const contentElement = document.getElementById(elementId);
 
@@ -125,25 +150,8 @@
             // Remove the temporary element after copying
             document.body.removeChild(tempElement);
 
-            // Show tooltip near the cursor
-            showTooltip(event.clientX, event.clientY);
-        }
-
-        // Function to show a tooltip near the cursor and hide it after 2 seconds
-        function showTooltip(x, y) {
-            const tooltip = document.getElementById('tooltip');
-
-            // Position the tooltip
-            tooltip.style.left = x + 'px';
-            tooltip.style.top = y + 'px';
-
-            // Show the tooltip
-            tooltip.classList.add('show');
-
-            // Hide the tooltip after 1.5 seconds
-            setTimeout(() => {
-                tooltip.classList.remove('show');
-            }, 1500);
+            // Trigger the Bootstrap toast notification
+            alert("Copied to clipboard!");
         }
     </script>
 
