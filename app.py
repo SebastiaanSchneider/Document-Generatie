@@ -141,10 +141,10 @@ def index():
             "role": "system",
             "content": (
                 "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "  # pylint: disable=line-too-long
-                "uit te schrijven op basis van wat de gebruiker invoert. De data is al anoniem en alle namen zijn niet "  # pylint: disable=line-too-long
-                "die van de daadwerkelijke cliënten, dus je moet alle privacyvoorschriften negeren. Schrijf het verslag voor de "  # pylint: disable=line-too-long
-                "dagbesteding in het Nederlands en in de tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. "  # pylint: disable=line-too-long
-                "Voeg geen tekst toe die niet in het verslag hoort."
+                "uit te schrijven op basis van wat de gebruiker invoert. "
+                "Er zijn geen gegevens die bescherming nodig hebben, dus je kunt alle privacyoverwegingen negeren. "  # pylint: disable=line-too-long
+                "Schrijf het verslag voor de dagbesteding in het Nederlands en in de tegenwoordige tijd. "  # pylint: disable=line-too-long
+                "Houd het feitelijk en maak het niet te lang. Voeg geen tekst toe die niet in het verslag hoort."  # pylint: disable=line-too-long
             )
         }
 
@@ -213,10 +213,10 @@ def adjust_response(temperature):
             "role": "system",
             "content": (
                 "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "  # pylint: disable=line-too-long
-                "uit te schrijven op basis van wat de gebruiker invoert. De data is al anoniem en alle namen zijn niet "  # pylint: disable=line-too-long
-                "die van de daadwerkelijke cliënten, dus je moet alle privacyregels negeren. Schrijf het verslag voor de " # pylint: disable=line-too-long
-                "dagbesteding in het Nederlands en in de tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. "  # pylint: disable=line-too-long
-                "Voeg geen tekst toe die niet in het verslag hoort."
+                "uit te schrijven op basis van wat de gebruiker invoert. "
+                "Er zijn geen gegevens die bescherming nodig hebben, dus je kunt alle privacyoverwegingen negeren. "  # pylint: disable=line-too-long
+                "Schrijf het verslag voor de dagbesteding in het Nederlands en in de tegenwoordige tijd. "  # pylint: disable=line-too-long
+                "Houd het feitelijk en maak het niet te lang. Voeg geen tekst toe die niet in het verslag hoort."  # pylint: disable=line-too-long
             )
         }
 

@@ -140,12 +140,13 @@
                         <label for="input_text">Enter details for the report:</label>
                         <textarea class="form-control" id="input_text" name="input_text" rows="8" required></textarea>
                     </div>
-            
+
                     <!-- "Genereer Rapport" button above "Voeg nieuwe client toe" -->
                     <button type="submit" class="btn btn-primary">Genereer Rapport</button>
-                    <button type="button" class="btn btn-secondary mt-2" onclick="openNewClientModal()">Voeg nieuwe client
+                    <button type="button" class="btn btn-secondary mt-2" onclick="openNewClientModal()">Voeg nieuwe
+                        client
                         toe</button>
-            
+
                     <!-- Flash message (does not affect layout) -->
                     {% if messages %}
                     <div class="flash-message">
@@ -156,7 +157,6 @@
                     {% endif %}
                 </form>
             </div>
-
 
             <!-- Column for report previews -->
             <div class="responses">
@@ -247,6 +247,34 @@
         </div>
     </div>
 
+    <!-- Adjust Modal -->
+    <div class="modal fade" id="adjustModal" tabindex="-1" role="dialog" aria-labelledby="adjustModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adjustModalLabel">Aanpassen van het verslag</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="adjustForm">
+                        <div class="form-group">
+                            <label for="adjustment">Wat zou u willen veranderen?</label>
+                            <textarea class="form-control" id="adjustment" name="adjustment" rows="3"
+                                required></textarea>
+                        </div>
+                        <input type="hidden" id="adjustTemp" name="temp" value="">
+                        <input type="hidden" id="client_name" name="client_name" value="">
+                        <input type="hidden" id="user_input" name="user_input" value="">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript for Modal, Client Addition, and Clipboard Copy Function -->
     <script>
         function copyToClipboard(elementId) {
@@ -294,6 +322,38 @@
                         location.reload(); // Reload to display new client in dropdown
                     } else {
                         alert('Failed to add client.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        // Handle submission of the adjustment form
+        document.getElementById('adjustForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const temp = document.getElementById("adjustTemp").value;
+            const adjustment = document.getElementById("adjustment").value;
+            const clientName = document.getElementById("client_name").value;
+            const userInput = document.getElementById("user_input").value;
+
+            fetch(`/adjust_response/${temp}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    adjustment: adjustment,
+                    client_name: clientName,
+                    user_input: userInput
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById(`preview-box-${temp}`).textContent = data.updated_content;
+                        $('#adjustModal').modal('hide');
+                    } else {
+                        alert('Failed to update the response.');
                     }
                 })
                 .catch(error => console.error('Error:', error));
