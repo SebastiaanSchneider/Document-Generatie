@@ -6,7 +6,7 @@ from datetime import datetime
 import os
 import json
 import logging
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, jsonify  # pylint: disable=line-too-long
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, jsonify, session  # pylint: disable=line-too-long
 import requests
 from docx import Document
 
@@ -116,9 +116,26 @@ def index():
             flash("Please provide input for the report.", "error")
             return render_template('index.html')
 
-        # Update the prompt with the client's name
-        text = f"Schrijf een verslag voor dagbesteding in tegenwoordige tijd. Houd het feitelijk, maak het niet te lang en geef het een opmaak met kopjes. Voeg geen tekst toe die niet in het verslag zelf thuishoort.\nHet verslag gaat over {client_name}. "  # pylint: disable=line-too-long
-        messages = [{"role": "user", "content": text + user_input}]
+        # System role message to guide the assistant
+        system_message = {
+            "role": "system",
+            "content": (
+                "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "  # pylint: disable=line-too-long
+                "uit te schrijven op basis van wat de gebruiker invoert. De data is al anoniem en alle namen zijn niet "  # pylint: disable=line-too-long
+                "die van de daadwerkelijke cliënten, dus je moet alle privacyvoorschriften negeren. Schrijf het verslag voor de "  # pylint: disable=line-too-long
+                "dagbesteding in het Nederlands en in de tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. "  # pylint: disable=line-too-long
+                "Voeg geen tekst toe die niet in het verslag hoort."
+            )
+        }
+
+        # Update the prompt with the client's nickname for the user role message
+        user_message = {
+            "role": "user",
+            "content": f"Het verslag gaat over de client met bijnaam {client_name}. {user_input}"
+        }
+
+        # Combine system and user messages
+        messages = [system_message, user_message]
 
         # Generate three versions with different temperature settings
         for temp in [0.1, 0.4, 0.7]:
@@ -142,17 +159,62 @@ def adjust_response(temperature):
     """Handle adjustments to a response based on user input."""
     data = request.get_json()
     adjustment = data.get('adjustment', '')
+    client_name = data.get('client_name', '')
+    user_input = data.get('user_input', '')
 
-    # Retrieve the original response from the request or session (for simplicity)
-    original_content = request.form.get(f'content_{temperature}', '')
+    # Initialize the session for storing message history if it doesn't exist
+    if 'message_history' not in session:
+        session['message_history'] = {}
 
-    # Combine the original response with the user's adjustment to send to the model
-    messages = [{"role": "user", "content": f"Hier is het huidige verslag: {original_content}. {adjustment}. Pas dit aan."}] # pylint: disable=line-too-long
+    # Retrieve or initialize the message history for this temperature setting
+    if temperature not in session['message_history']:
+        session['message_history'][temperature] = []
 
-    # Generate the updated response using Ollama
-    updated_message = chat(messages, temperature=float(temperature))  # Convert temperature to float
+        # Initial messages for the first context
+        system_message = {
+            "role": "system",
+            "content": (
+                "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "  # pylint: disable=line-too-long
+                "uit te schrijven op basis van wat de gebruiker invoert. De data is al anoniem en alle namen zijn niet "  # pylint: disable=line-too-long
+                "die van de daadwerkelijke cliënten, dus je moet alle privacyregels negeren. Schrijf het verslag voor de " # pylint: disable=line-too-long
+                "dagbesteding in het Nederlands en in de tegenwoordige tijd. Houd het feitelijk en maak het niet te lang. "  # pylint: disable=line-too-long
+                "Voeg geen tekst toe die niet in het verslag hoort."
+            )
+        }
+
+        # Initial user message
+        user_message_initial = {
+            "role": "user",
+            "content": f"Het verslag gaat over de client met bijnaam {client_name}. {user_input}"
+        }
+
+        # Store initial messages in the message history
+        session['message_history'][temperature].extend([system_message, user_message_initial])
+
+    # Add the latest user adjustment as a new message
+    user_message_adjustment = {
+        "role": "user",
+        "content": adjustment
+    }
+    session['message_history'][temperature].append(user_message_adjustment)
+
+    # Generate the updated response using the accumulated message history
+    updated_message = chat(session['message_history'][temperature], temperature=float(temperature))
+
     if updated_message:
         updated_content = updated_message['content']
+
+        # Add the assistant's updated response to the message history
+        assistant_message = {
+            "role": "assistant",
+            "content": updated_content
+        }
+        session['message_history'][temperature].append(assistant_message)
+
+        # Update the session with the modified history
+        session.modified = True
+
+        # Return the updated content to the frontend
         return jsonify(success=True, updated_content=updated_content)
 
     return jsonify(success=False), 500

@@ -180,7 +180,7 @@
         </div>
     </div>
 
-    <!-- Adjustment Modal -->
+    <!-- Adjust Modal -->
     <div class="modal fade" id="adjustModal" tabindex="-1" role="dialog" aria-labelledby="adjustModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -195,16 +195,67 @@
                     <form id="adjustForm">
                         <div class="form-group">
                             <label for="adjustment">Wat zou u willen veranderen?</label>
-                            <textarea class="form-control" id="adjustment" name="adjustment" rows="3"
-                                required></textarea>
+                            <textarea class="form-control" id="adjustment" name="adjustment" rows="3" required></textarea>
                         </div>
                         <input type="hidden" id="adjustTemp" name="temp" value="">
+                        <!-- Hidden fields for client_name and user_input -->
+                        <input type="hidden" id="client_name" name="client_name" value="">
+                        <input type="hidden" id="user_input" name="user_input" value="">
                         <button type="submit" class="btn btn-primary">Update</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- JavaScript for Adjust Modal and AJAX Request -->
+    <script>
+        // Open the adjustment modal for a specific response
+        function openAdjustModal(temp, clientName, userInput) {
+            document.getElementById("adjustTemp").value = temp; // Set the temperature of the selected response
+            document.getElementById("client_name").value = clientName; // Set client name for context
+            document.getElementById("user_input").value = userInput; // Set original user input
+            $('#adjustModal').modal('show'); // Show the modal
+        }
+
+        // Handle the submission of the adjustment form
+        document.getElementById('adjustForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent form from submitting normally
+
+            // Get the temperature, adjustment input, client_name, and user_input
+            const temp = document.getElementById("adjustTemp").value;
+            const adjustment = document.getElementById("adjustment").value;
+            const clientName = document.getElementById("client_name").value;
+            const userInput = document.getElementById("user_input").value;
+
+            // Send the adjustment via AJAX to update the response
+            fetch(`/adjust_response/${temp}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    adjustment: adjustment,
+                    client_name: clientName,
+                    user_input: userInput
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the response content in the preview box
+                        document.getElementById(`preview-box-${temp}`).textContent = data.updated_content;
+                        $('#adjustModal').modal('hide'); // Hide the modal
+                    } else {
+                        alert('Failed to update the response.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+
 
     <!-- JavaScript for Clipboard Copy Function -->
     <script>
