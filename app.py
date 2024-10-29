@@ -9,12 +9,30 @@ import logging
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, jsonify, session  # pylint: disable=line-too-long
 import requests
 from docx import Document
+from flask_sqlalchemy import SQLAlchemy
 
-
-# Flask setup
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///clients.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Load secret key from environment variable or fall back to a default value
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_secret_key")
+
+# Initialize the database with the app
+db = SQLAlchemy(app)
+
+# Define the Client model
+class Client(db.Model):
+    """Class for datebase entries"""
+    id = db.Column(db.Integer, primary_key=True)
+    bijnaam = db.Column(db.String(50), nullable=False)
+    clientnummer = db.Column(db.Integer, nullable=False, unique=True)
+    geslacht = db.Column(db.String(10), nullable=False)
+    leeftijd = db.Column(db.Integer, nullable=False)
+    woonplaats = db.Column(db.String(50), nullable=False)
+    locatie = db.Column(db.String(50), nullable=False)
+
+
+
 
 # Setup logging
 logging.basicConfig(filename="ollama_logs.log", level=logging.INFO,
@@ -105,6 +123,8 @@ def index():
     """Render the form and handle document generation requests."""
     generated_versions = {}  # Dictionary to hold versions for different temperatures
 
+    clients = Client.query.all()  # Fetch all clients from the database
+
     if request.method == 'POST':
         # Get the input text and client name from the form
         user_input = request.form['input_text']
@@ -151,7 +171,25 @@ def index():
             flash("Reports generated successfully.", "success")
 
     # Render the template with the generated versions (if any)
-    return render_template('index.html', generated_versions=generated_versions)
+    return render_template('index.html', generated_versions=generated_versions, clients=clients)
+
+
+# Route to add a new client via AJAX
+@app.route('/add_client', methods=['POST'])
+def add_client():
+    """Add a new client"""
+    data = request.json
+    new_client = Client(
+        bijnaam=data['bijnaam'],
+        clientnummer=data['clientnummer'],
+        geslacht=data['geslacht'],
+        leeftijd=data['leeftijd'],
+        woonplaats=data['woonplaats'],
+        locatie=data['locatie']
+    )
+    db.session.add(new_client)
+    db.session.commit()
+    return jsonify(success=True)
 
 
 @app.route('/adjust_response/<temperature>', methods=['POST'])
@@ -250,5 +288,9 @@ def download_file(filename):
 
 
 if __name__ == '__main__':
+    # Create database tables if they don't exist
+    with app.app_context():
+        db.create_all()  # Run within application context
+
     # Run the Flask app in debug mode (for development purposes)
     app.run(debug=True)
