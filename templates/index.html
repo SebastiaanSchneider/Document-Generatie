@@ -40,6 +40,8 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
+            height: calc(100vh - 80px);
+            /* Adjust for header height */
         }
 
         /* Fixed width for the form column */
@@ -75,11 +77,20 @@
             border-color: #999999;
         }
 
-        /* Ensure the card body grows to fit the full height and adds internal scrolling if needed */
+        /* Card body adjusts based on header height */
         .card-body {
             flex-grow: 1;
-            overflow: auto;
-            /* Internal scroll for card content */
+            overflow: hidden;
+        }
+
+        /* Max height for scrolling within preview box */
+        .preview-box {
+            max-height: calc(100vh - 160px);
+            /* Adjust for header and card header */
+            overflow-y: auto;
+            /* Enable vertical scrolling if content exceeds */
+            white-space: pre-wrap;
+            /* Ensure content wraps within the box */
         }
 
         /* Keep the cards at a consistent width */
@@ -155,7 +166,7 @@
                             <!-- Buttons in card-header -->
                             <div>
                                 <button type="button" class="btn btn-warning btn-sm"
-                                    onclick="openAdjustModal('{{ temp }}')">Aanpassen</button>
+                                    onclick="openAdjustModal('{{ temp }}', '{{ client_name }}', '{{ user_input }}')">Aanpassen</button>
                                 <button type="button" class="btn btn-secondary btn-sm"
                                     onclick="copyToClipboard('preview-box-{{ temp }}')">Copy to Clipboard</button>
                                 <form action="{{ url_for('save_docx', temperature=temp) }}" method="POST"
@@ -166,7 +177,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="preview-box" id="preview-box-{{ temp }}" style="white-space: pre-wrap;">
+                            <div class="preview-box" id="preview-box-{{ temp }}">
                                 {{ content }}
                             </div>
                         </div>
@@ -195,7 +206,8 @@
                     <form id="adjustForm">
                         <div class="form-group">
                             <label for="adjustment">Wat zou u willen veranderen?</label>
-                            <textarea class="form-control" id="adjustment" name="adjustment" rows="3" required></textarea>
+                            <textarea class="form-control" id="adjustment" name="adjustment" rows="3"
+                                required></textarea>
                         </div>
                         <input type="hidden" id="adjustTemp" name="temp" value="">
                         <!-- Hidden fields for client_name and user_input -->
@@ -207,33 +219,37 @@
             </div>
         </div>
     </div>
-    
-    <!-- JavaScript for Adjust Modal and AJAX Request -->
+
+    <!-- JavaScript for Clipboard Copy Function and Adjust Modal -->
     <script>
-        // Open the adjustment modal for a specific response
-        function openAdjustModal(temp, clientName, userInput) {
-            document.getElementById("adjustTemp").value = temp; // Set the temperature of the selected response
-            document.getElementById("client_name").value = clientName; // Set client name for context
-            document.getElementById("user_input").value = userInput; // Set original user input
-            $('#adjustModal').modal('show'); // Show the modal
+        function copyToClipboard(elementId) {
+            const contentElement = document.getElementById(elementId);
+            const tempElement = document.createElement('textarea');
+            tempElement.value = contentElement.textContent;
+            document.body.appendChild(tempElement);
+            tempElement.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempElement);
+            alert("Copied to clipboard!");
         }
 
-        // Handle the submission of the adjustment form
-        document.getElementById('adjustForm').addEventListener('submit', function (e) {
-            e.preventDefault(); // Prevent form from submitting normally
+        function openAdjustModal(temp, clientName, userInput) {
+            document.getElementById("adjustTemp").value = temp;
+            document.getElementById("client_name").value = clientName;
+            document.getElementById("user_input").value = userInput;
+            $('#adjustModal').modal('show');
+        }
 
-            // Get the temperature, adjustment input, client_name, and user_input
+        document.getElementById('adjustForm').addEventListener('submit', function (e) {
+            e.preventDefault();
             const temp = document.getElementById("adjustTemp").value;
             const adjustment = document.getElementById("adjustment").value;
             const clientName = document.getElementById("client_name").value;
             const userInput = document.getElementById("user_input").value;
 
-            // Send the adjustment via AJAX to update the response
             fetch(`/adjust_response/${temp}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     adjustment: adjustment,
                     client_name: clientName,
@@ -243,79 +259,13 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update the response content in the preview box
                         document.getElementById(`preview-box-${temp}`).textContent = data.updated_content;
-                        $('#adjustModal').modal('hide'); // Hide the modal
+                        $('#adjustModal').modal('hide');
                     } else {
                         alert('Failed to update the response.');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        });
-    </script>
-
-
-    <!-- JavaScript for Clipboard Copy Function -->
-    <script>
-        function copyToClipboard(elementId) {
-            // Find the element containing the report content
-            const contentElement = document.getElementById(elementId);
-
-            // Create a temporary textarea element to hold the text to be copied
-            const tempElement = document.createElement('textarea');
-            tempElement.value = contentElement.textContent; // Use textContent to get the plain text
-
-            // Add the textarea to the document
-            document.body.appendChild(tempElement);
-
-            // Select the text in the temporary textarea and copy it
-            tempElement.select();
-            document.execCommand('copy');
-
-            // Remove the temporary element after copying
-            document.body.removeChild(tempElement);
-
-            // Trigger the Bootstrap toast notification
-            alert("Copied to clipboard!");
-        }
-
-        // Open the adjustment modal for a specific response
-        function openAdjustModal(temp) {
-            document.getElementById("adjustTemp").value = temp; // Set the temperature of the selected response
-            $('#adjustModal').modal('show'); // Show the modal
-        }
-
-        // Handle the submission of the adjustment form
-        document.getElementById('adjustForm').addEventListener('submit', function (e) {
-            e.preventDefault(); // Prevent form from submitting normally
-
-            // Get the temperature and adjustment input
-            const temp = document.getElementById("adjustTemp").value;
-            const adjustment = document.getElementById("adjustment").value;
-
-            // Send the adjustment via AJAX to update the response
-            fetch(`/adjust_response/${temp}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ adjustment: adjustment }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update the response content in the preview box
-                        document.getElementById(`preview-box-${temp}`).textContent = data.updated_content;
-                        $('#adjustModal').modal('hide'); // Hide the modal
-                    } else {
-                        alert('Failed to update the response.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                .catch(error => console.error('Error:', error));
         });
     </script>
 
