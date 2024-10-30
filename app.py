@@ -6,7 +6,7 @@ from datetime import datetime
 import os
 import json
 import logging
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, jsonify, session  # pylint: disable=line-too-long
+from flask import Flask, render_template, request, flash, url_for, send_from_directory, jsonify, session  # pylint: disable=line-too-long
 import requests
 from docx import Document
 from flask_sqlalchemy import SQLAlchemy
@@ -263,24 +263,20 @@ def adjust_response(temperature):
 @app.route('/save_docx/<temperature>', methods=['POST'])
 def save_docx(temperature):
     """Save the selected version as a .docx file."""
-    # Retrieve the content for the selected temperature
-    content = request.form.get(
-        f'content_{temperature}')  # pylint: disable=logging-fstring-interpolation
+    content = request.form.get(f'content_{temperature}')
     if not content:
-        # Notify the user if no content is available to save
-        flash("No content to save.", "error")
-        return redirect(url_for('index'))
+        # Return JSON response indicating failure
+        return jsonify(success=False, message="No content to save."), 400
 
-    # Save the selected content to a docx file
+    # Save the document
     file_path = save_to_docx(content)
     if file_path:
-        # Notify the user that the document was saved successfully
-        flash(f"Report saved successfully. Download it <a href='/documents/{os.path.basename(file_path)}'>here</a>.", "success")  # pylint: disable=line-too-long
+        # Return success with the file URL for download
+        file_url = url_for('download_file', filename=os.path.basename(file_path))
+        return jsonify(success=True, message="Report saved successfully.", file_url=file_url)
     else:
-        flash("Failed to save the document.", "error")
+        return jsonify(success=False, message="Failed to save the document."), 500
 
-    # Redirect to the main page
-    return redirect(url_for('index'))
 
 
 @app.route('/documents/<filename>')

@@ -144,8 +144,7 @@
                     <!-- "Genereer Rapport" button above "Voeg nieuwe client toe" -->
                     <button type="submit" class="btn btn-primary">Genereer Rapport</button>
                     <button type="button" class="btn btn-secondary mt-2" onclick="openNewClientModal()">Voeg nieuwe
-                        client
-                        toe</button>
+                        client toe</button>
 
                     <!-- Flash message (does not affect layout) -->
                     {% if messages %}
@@ -173,11 +172,9 @@
                                     onclick="openAdjustModal('{{ temp }}', '{{ client_name }}', '{{ user_input }}')">Aanpassen</button>
                                 <button type="button" class="btn btn-secondary btn-sm"
                                     onclick="copyToClipboard('preview-box-{{ temp }}')">Copy to Clipboard</button>
-                                <form action="{{ url_for('save_docx', temperature=temp) }}" method="POST"
-                                    style="display: inline;">
-                                    <input type="hidden" name="content_{{ temp }}" value="{{ content }}">
-                                    <button type="submit" class="btn btn-success btn-sm">Save as DOCX</button>
-                                </form>
+                                <input type="hidden" name="content_{{ temp }}" value="{{ content }}">
+                                <button type="button" class="btn btn-success btn-sm"
+                                    onclick="saveDocx('{{ temp }}')">Save as DOCX</button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -358,6 +355,28 @@
                 })
                 .catch(error => console.error('Error:', error));
         });
+
+        // Function to save document as .docx without reloading the page
+        function saveDocx(temp) {
+            const content = document.querySelector(`input[name="content_${temp}"]`).value;
+
+            fetch(`/save_docx/${temp}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ [`content_${temp}`]: content })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`Report saved successfully. Download it here: ${data.file_url}`);
+                    } else {
+                        alert(data.message || 'Failed to save the document.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
     </script>
 
     <!-- JavaScript for Bootstrap (Optional) -->
