@@ -123,7 +123,8 @@ def index():
     """Render the form and handle document generation requests."""
     generated_versions = {}  # Dictionary to hold versions for different temperatures
 
-    clients = Client.query.all()  # Fetch all clients from the database
+    # Fetch all clients from the database
+    clients = Client.query.order_by(Client.bijnaam).all()
 
     if request.method == 'POST':
         # Get the input text and client name from the form
