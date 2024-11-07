@@ -39,7 +39,7 @@ logging.basicConfig(filename="ollama_logs.log", level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Updated Ollama Model
-MODEL = "llama3.1"
+MODEL = "llama3.1:8b"
 
 
 def chat(messages, temperature):
