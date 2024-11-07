@@ -158,19 +158,18 @@
                     <div id="absent_questions" style="display: none;">
                         <div class="form-group">
                             <label for="reden_afwezig">Reden afwezig:</label>
-                            <textarea class="form-control" id="reden_afwezig" name="reden_afwezig" required></textarea>
+                            <textarea class="form-control" id="reden_afwezig" name="reden_afwezig"></textarea>
                         </div>
                         <div class="form-group">
                             <label>Optijd afgemeld?</label><br>
-                            <input type="radio" id="afgemeld_ja" name="afgemeld" value="Ja" required>
+                            <input type="radio" id="afgemeld_ja" name="afgemeld" value="Ja">
                             <label for="afgemeld_ja">Ja</label>
-                            <input type="radio" id="afgemeld_nee" name="afgemeld" value="Nee" required>
+                            <input type="radio" id="afgemeld_nee" name="afgemeld" value="Nee">
                             <label for="afgemeld_nee">Nee</label>
                         </div>
                         <div class="form-group">
                             <label for="overige_opmerkingen">Overige opmerkingen:</label>
-                            <textarea class="form-control" id="overige_opmerkingen"
-                                name="overige_opmerkingen"></textarea>
+                            <textarea class="form-control" id="overige_opmerkingen" name="overige_opmerkingen"></textarea>
                         </div>
                     </div>
 
@@ -178,36 +177,33 @@
                     <div id="present_questions" style="display: none;">
                         <div class="form-group">
                             <label>Heeft de client het dagdeel volgemaakt?</label><br>
-                            <input type="radio" id="dagdeel_ja" name="dagdeel_volledig" value="Ja" required>
+                            <input type="radio" id="dagdeel_ja" name="dagdeel_volledig" value="Ja">
                             <label for="dagdeel_ja">Ja</label>
-                            <input type="radio" id="dagdeel_nee" name="dagdeel_volledig" value="Nee" required>
+                            <input type="radio" id="dagdeel_nee" name="dagdeel_volledig" value="Nee">
                             <label for="dagdeel_nee">Nee</label>
                         </div>
 
                         <div class="form-group">
                             <label for="werkzaamheden">Waar heeft de client aan gewerkt?</label>
-                            <textarea class="form-control" id="werkzaamheden" name="werkzaamheden" required></textarea>
+                            <textarea class="form-control" id="werkzaamheden" name="werkzaamheden"></textarea>
                         </div>
 
                         <div class="form-group">
                             <label for="humeur">Hoe was het humeur van de client?</label>
-                            <textarea class="form-control" id="humeur" name="humeur" required></textarea>
+                            <textarea class="form-control" id="humeur" name="humeur"></textarea>
                         </div>
 
                         <div class="form-group">
                             <label>Heeft de client met mensen samengewerkt?</label><br>
-                            <input type="radio" id="samengewerkt_ja" name="samengewerkt" value="Ja" required
-                                onclick="toggleCollab(true)">
+                            <input type="radio" id="samengewerkt_ja" name="samengewerkt" value="Ja" onclick="toggleCollab(true)">
                             <label for="samengewerkt_ja">Ja</label>
-                            <input type="radio" id="samengewerkt_nee" name="samengewerkt" value="Nee" required
-                                onclick="toggleCollab(false)">
+                            <input type="radio" id="samengewerkt_nee" name="samengewerkt" value="Nee" onclick="toggleCollab(false)">
                             <label for="samengewerkt_nee">Nee</label>
                         </div>
 
                         <div class="form-group" id="collab_details" style="display: none;">
                             <label for="collab_description">Met wie en hoe verliep deze samenwerking?</label>
-                            <textarea class="form-control" id="collab_description" name="collab_description"
-                                required></textarea>
+                            <textarea class="form-control" id="collab_description" name="collab_description"></textarea>
                         </div>
 
                         <div class="form-group">
@@ -222,8 +218,7 @@
 
                         <div class="form-group">
                             <label for="contactmomenten">Wat voor contactmomenten zijn er geweest?</label>
-                            <textarea class="form-control" id="contactmomenten" name="contactmomenten"
-                                required></textarea>
+                            <textarea class="form-control" id="contactmomenten" name="contactmomenten"></textarea>
                         </div>
 
                         <div class="form-group">
@@ -280,7 +275,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- New Client Modal -->
     <div class="modal fade" id="newClientModal" tabindex="-1" role="dialog" aria-labelledby="newClientModalLabel"
         aria-hidden="true">
@@ -332,7 +327,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Adjust Modal -->
     <div class="modal fade" id="adjustModal" tabindex="-1" role="dialog" aria-labelledby="adjustModalLabel"
         aria-hidden="true">
@@ -348,8 +343,7 @@
                     <form id="adjustForm">
                         <div class="form-group">
                             <label for="adjustment">Wat zou u willen veranderen?</label>
-                            <textarea class="form-control" id="adjustment" name="adjustment" rows="3"
-                                required></textarea>
+                            <textarea class="form-control" id="adjustment" name="adjustment" rows="3" required></textarea>
                         </div>
                         <input type="hidden" id="adjustTemp" name="temp" value="">
                         <input type="hidden" id="client_name" name="client_name" value="">
@@ -471,10 +465,21 @@
         function toggleAttendance(isPresent) {
             document.getElementById('absent_questions').style.display = isPresent ? 'none' : 'block';
             document.getElementById('present_questions').style.display = isPresent ? 'block' : 'none';
+
+            // Toggle required attributes based on visibility
+            document.getElementById('reden_afwezig').required = !isPresent;
+            document.getElementById('afgemeld_ja').required = !isPresent;
+            document.getElementById('afgemeld_nee').required = !isPresent;
+            document.getElementById('dagdeel_ja').required = isPresent;
+            document.getElementById('dagdeel_nee').required = isPresent;
+            document.getElementById('werkzaamheden').required = isPresent;
+            document.getElementById('humeur').required = isPresent;
+            document.getElementById('contactmomenten').required = isPresent;
         }
 
         function toggleCollab(isCollaborated) {
             document.getElementById('collab_details').style.display = isCollaborated ? 'block' : 'none';
+            document.getElementById('collab_description').required = isCollaborated;
         }
     </script>
 

@@ -128,14 +128,76 @@ def index():
 
     if request.method == 'POST':
         # Get the input text and client name from the form
-        user_input = request.form['input_text']
-        # Extract selected client name
         client_name = request.form['client_name']
 
-        if not user_input:
-            # Notify the user if no input is provided
-            flash("Please provide input for the report.", "error")
-            return render_template('index.html')
+        # Initialize the base prompt based on client presence
+        if request.form.get('aanwezig') == 'Nee':
+            # Scenario: Client was not present
+            prompt = "Client was niet aanwezig."
+
+            # Add reason for absence
+            reden_afwezig = request.form.get('reden_afwezig', '').strip()
+            prompt += f" Reden afwezigheid: {reden_afwezig}." if reden_afwezig else ""
+
+            # Add timely notice information
+            afgemeld = request.form.get('afgemeld')
+            if afgemeld == 'Ja':
+                prompt += " Client was op tijd afgemeld."
+            elif afgemeld == 'Nee':
+                prompt += " Client was niet op tijd afgemeld."
+
+            # Add additional remarks if provided
+            overige_opmerkingen = request.form.get('overige_opmerkingen', '').strip()
+            if overige_opmerkingen:
+                prompt += f" Overige opmerkingen: {overige_opmerkingen}."
+        
+        elif request.form.get('aanwezig') == 'Ja':
+            # Scenario: Client was present
+            prompt = "Client was aanwezig."
+
+            # Add whether the client completed the session
+            dagdeel_volledig = request.form.get('dagdeel_volledig')
+            if dagdeel_volledig == 'Ja':
+                prompt += " De client heeft het dagdeel volgemaakt."
+            elif dagdeel_volledig == 'Nee':
+                prompt += " De client heeft het dagdeel niet volgemaakt."
+
+            # Add work description
+            werkzaamheden = request.form.get('werkzaamheden', '').strip()
+            prompt += f" De client heeft vandaag gewerkt aan het volgende: {werkzaamheden}."
+
+            # Add mood description
+            humeur = request.form.get('humeur', '').strip()
+            prompt += f" Humeur van de client: {humeur}."
+
+            # Add collaboration details if applicable
+            samengewerkt = request.form.get('samengewerkt')
+            if samengewerkt == 'Ja':
+                collab_description = request.form.get('collab_description', '').strip()
+                prompt += f" De client had vandaag samenwerking: {collab_description}."
+
+            # Add learning goals if provided
+            leerdoelen = request.form.get('leerdoelen', '').strip()
+            if leerdoelen:
+                prompt += f" De client heeft aan de volgende leerdoelen gewerkt: {leerdoelen}."
+
+            # Add next steps if provided
+            stappen = request.form.get('stappen', '').strip()
+            if stappen:
+                prompt += f" Stappen begeleiders: {stappen}."
+
+            # Add contact moments
+            contactmomenten = request.form.get('contactmomenten', '').strip()
+            prompt += f" Contactmomenten met de client: {contactmomenten}."
+
+            # Add any additional notes if provided
+            bijzonderheden = request.form.get('bijzonderheden', '').strip()
+            if bijzonderheden:
+                prompt += f" Bijzonderheden: {bijzonderheden}."
+
+        # Print the constructed prompt for testing purposes
+        print("Constructed Prompt for LLM:")
+        print(prompt)
 
         # System role message to guide the assistant
         system_message = {
@@ -153,7 +215,7 @@ def index():
         # Update the prompt with the client's nickname for the user role message
         user_message = {
             "role": "user",
-            "content": f"Het verslag gaat over de client met bijnaam {client_name}. {user_input}"
+            "content": f"Het verslag gaat over de client met bijnaam {client_name}. {prompt}"
         }
 
         # Combine system and user messages
