@@ -14,7 +14,6 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            /* Prevent overall page scrolling */
         }
 
         /* Use Flexbox to make the layout responsive */
@@ -44,10 +43,12 @@
             /* Adjust for header height */
         }
 
-        /* Fixed width for the form column */
+        /* Fixed width for the form column, now scrollable */
         .form-column {
             flex-basis: 250px;
             padding: 10px;
+            overflow-y: auto;
+            /* Enable scrolling within the form column */
         }
 
         /* Flexbox for equal height columns for responses */
@@ -127,7 +128,7 @@
             <!-- Narrow column for the form -->
             <div class="form-column">
                 <form method="POST">
-                    <!-- Move "Select the client" above "Enter details for the report" -->
+                    <!-- Select the client -->
                     <div class="form-group">
                         <label for="client_name">Select the client:</label>
                         <select class="form-control" id="client_name" name="client_name" required>
@@ -136,15 +137,103 @@
                             {% endfor %}
                         </select>
                     </div>
+
+                    <!-- "Voeg nieuwe client toe" button directly below client selection -->
+                    <button type="button" class="btn btn-secondary mb-3" onclick="openNewClientModal()">Voeg nieuwe client toe</button>
+
+                    <!-- Conditional Questions Start -->
+
+                    <!-- Question 1: Was client aanwezig? -->
                     <div class="form-group">
-                        <label for="input_text">Enter details for the report:</label>
-                        <textarea class="form-control" id="input_text" name="input_text" rows="8" required></textarea>
+                        <label>Was client aanwezig?</label><br>
+                        <input type="radio" id="aanwezig_ja" name="aanwezig" value="Ja" required
+                            onclick="toggleAttendance(true)">
+                        <label for="aanwezig_ja">Ja</label>
+                        <input type="radio" id="aanwezig_nee" name="aanwezig" value="Nee" required
+                            onclick="toggleAttendance(false)">
+                        <label for="aanwezig_nee">Nee</label>
                     </div>
 
-                    <!-- "Genereer Rapport" button above "Voeg nieuwe client toe" -->
+                    <!-- Additional questions if client was absent -->
+                    <div id="absent_questions" style="display: none;">
+                        <div class="form-group">
+                            <label for="reden_afwezig">Reden afwezig:</label>
+                            <textarea class="form-control" id="reden_afwezig" name="reden_afwezig" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Optijd afgemeld?</label><br>
+                            <input type="radio" id="afgemeld_ja" name="afgemeld" value="Ja" required>
+                            <label for="afgemeld_ja">Ja</label>
+                            <input type="radio" id="afgemeld_nee" name="afgemeld" value="Nee" required>
+                            <label for="afgemeld_nee">Nee</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="overige_opmerkingen">Overige opmerkingen:</label>
+                            <textarea class="form-control" id="overige_opmerkingen"
+                                name="overige_opmerkingen"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Additional questions if client was present -->
+                    <div id="present_questions" style="display: none;">
+                        <div class="form-group">
+                            <label>Heeft de client het dagdeel volgemaakt?</label><br>
+                            <input type="radio" id="dagdeel_ja" name="dagdeel_volledig" value="Ja" required>
+                            <label for="dagdeel_ja">Ja</label>
+                            <input type="radio" id="dagdeel_nee" name="dagdeel_volledig" value="Nee" required>
+                            <label for="dagdeel_nee">Nee</label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="werkzaamheden">Waar heeft de client aan gewerkt?</label>
+                            <textarea class="form-control" id="werkzaamheden" name="werkzaamheden" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="humeur">Hoe was het humeur van de client?</label>
+                            <textarea class="form-control" id="humeur" name="humeur" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Heeft de client met mensen samengewerkt?</label><br>
+                            <input type="radio" id="samengewerkt_ja" name="samengewerkt" value="Ja" required
+                                onclick="toggleCollab(true)">
+                            <label for="samengewerkt_ja">Ja</label>
+                            <input type="radio" id="samengewerkt_nee" name="samengewerkt" value="Nee" required
+                                onclick="toggleCollab(false)">
+                            <label for="samengewerkt_nee">Nee</label>
+                        </div>
+
+                        <div class="form-group" id="collab_details" style="display: none;">
+                            <label for="collab_description">Met wie en hoe verliep deze samenwerking?</label>
+                            <textarea class="form-control" id="collab_description" name="collab_description"
+                                required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="leerdoelen">Aan welke (leer)doelen heeft de client gewerkt?</label>
+                            <textarea class="form-control" id="leerdoelen" name="leerdoelen"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stappen">Welke stappen moeten begeleiders nu gaan nemen?</label>
+                            <textarea class="form-control" id="stappen" name="stappen"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactmomenten">Wat voor contactmomenten zijn er geweest?</label>
+                            <textarea class="form-control" id="contactmomenten" name="contactmomenten"
+                                required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bijzonderheden">Waren er bijzonderheden?</label>
+                            <textarea class="form-control" id="bijzonderheden" name="bijzonderheden"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Submit button -->
                     <button type="submit" class="btn btn-primary">Genereer Rapport</button>
-                    <button type="button" class="btn btn-secondary mt-2" onclick="openNewClientModal()">Voeg nieuwe
-                        client toe</button>
 
                     <!-- Flash message (does not affect layout) -->
                     {% if messages %}
@@ -376,6 +465,16 @@
                     }
                 })
                 .catch(error => console.error('Error:', error));
+        }
+
+        // JavaScript for toggling conditional questions
+        function toggleAttendance(isPresent) {
+            document.getElementById('absent_questions').style.display = isPresent ? 'none' : 'block';
+            document.getElementById('present_questions').style.display = isPresent ? 'block' : 'none';
+        }
+
+        function toggleCollab(isCollaborated) {
+            document.getElementById('collab_details').style.display = isCollaborated ? 'block' : 'none';
         }
     </script>
 
