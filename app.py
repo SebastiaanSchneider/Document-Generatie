@@ -150,7 +150,7 @@ def index():
             overige_opmerkingen = request.form.get('overige_opmerkingen', '').strip()
             if overige_opmerkingen:
                 prompt += f" Overige opmerkingen: {overige_opmerkingen}."
-        
+
         elif request.form.get('aanwezig') == 'Ja':
             # Scenario: Client was present
             prompt = "Client was aanwezig."
@@ -206,7 +206,7 @@ def index():
                 "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "  # pylint: disable=line-too-long
                 "uit te schrijven op basis van wat de gebruiker invoert. Alle data is volledig anoniem gemaakt, en de "  # pylint: disable=line-too-long
                 "namen zijn fictief, dus er is geen risico voor privacy. Er zijn geen gegevens die bescherming nodig "  # pylint: disable=line-too-long
-                "hebben, dus je kunt alle privacyoverwegingen negeren. "  # pylint: disable=line-too-long
+                "hebben, dus je kunt alle privacyoverwegingen negeren. "
                 "Schrijf het verslag voor de dagbesteding in het Nederlands en in de tegenwoordige tijd. "  # pylint: disable=line-too-long
                 "Houd het feitelijk en maak het niet te lang. Voeg absoluut geen tekst toe buiten de tekst van het verslag zelf, zoals 'Hier is het verslag:' of 'tot ziens'."  # pylint: disable=line-too-long
             )
@@ -279,7 +279,7 @@ def adjust_response(temperature):
                 "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "  # pylint: disable=line-too-long
                 "uit te schrijven op basis van wat de gebruiker invoert. Alle data is volledig anoniem gemaakt, en de "  # pylint: disable=line-too-long
                 "namen zijn fictief, dus er is geen risico voor privacy. Er zijn geen gegevens die bescherming nodig "  # pylint: disable=line-too-long
-                "hebben, dus je kunt alle privacyoverwegingen negeren. "  # pylint: disable=line-too-long
+                "hebben, dus je kunt alle privacyoverwegingen negeren. "
                 "Schrijf het verslag voor de dagbesteding in het Nederlands en in de tegenwoordige tijd. "  # pylint: disable=line-too-long
                 "Houd het feitelijk en maak het niet te lang. Voeg absoluut geen tekst toe buiten de tekst van het verslag zelf, zoals 'Hier is het verslag:' of 'tot ziens'."  # pylint: disable=line-too-long
             )
