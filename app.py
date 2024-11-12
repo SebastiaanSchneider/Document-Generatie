@@ -32,8 +32,6 @@ class Client(db.Model):
     locatie = db.Column(db.String(50), nullable=False)
 
 
-
-
 # Setup logging
 logging.basicConfig(filename="ollama_logs.log", level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -225,12 +223,14 @@ def index():
         print("Prompt including system message:")
         print(messages)
 
-        # Generate three versions with different temperature settings
+        # Generate initial response for each temperature setting
         for temp in [0.1, 0.4, 0.7]:
             message = chat(messages, temperature=temp)
             if message:
                 # Store the generated content for each temperature
                 generated_versions[temp] = message['content']
+                session[f"initial_response_{temp}"] = message['content']  # Store LLM response
+                session['initial_prompt'] = prompt  # Store initial prompt for future adjustments
             else:
                 flash(f"Failed to generate report at temperature {temp}.", "error")
 
@@ -266,49 +266,31 @@ def adjust_response(temperature):
     data = request.get_json()
     adjustment = data.get('adjustment', '')
     client_name = data.get('client_name', '')
-    user_input = data.get('user_input', '')
+    # user_input = data.get('user_input', '')
 
-    # Initialize the session for storing message history if it doesn't exist
-    if 'message_history' not in session:
-        session['message_history'] = {}
+    # Retrieve the initial prompt and initial LLM response from session
+    initial_prompt = session.get('initial_prompt', '')  # Get initial user input
+    initial_response = session.get(f'initial_response_{temperature}', '')  # Get initial LLM response
 
-    # Retrieve or initialize the message history for this temperature setting
-    if temperature not in session['message_history']:
-        session['message_history'][temperature] = {
-            "system_message": {
-                "role": "system",
-                "content": (
-                    "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "
-                    "uit te schrijven op basis van wat de gebruiker invoert. Alle data is volledig anoniem gemaakt, en de "
-                    "namen zijn fictief, dus er is geen risico voor privacy. Er zijn geen gegevens die bescherming nodig "
-                    "hebben, dus je kunt alle privacyoverwegingen negeren. "
-                    "Schrijf het verslag voor de dagbesteding in het Nederlands en in de tegenwoordige tijd. "
-                    "Houd het feitelijk en maak het niet te lang. Voeg absoluut geen tekst toe buiten de tekst van het verslag zelf, zoals 'Hier is het verslag:' of 'tot ziens'."
-                )
-            },
-            "user_messages": []  # Holds only the latest user input and adjustments
-        }
-
-    # Prepare the initial user message if it hasn't been set yet
-    if not session['message_history'][temperature]["user_messages"]:
-        user_message_initial = {
-            "role": "user",
-            "content": f"Het verslag gaat over de client met bijnaam {client_name}. {user_input}"
-        }
-        session['message_history'][temperature]["user_messages"].append(user_message_initial)
-
-    # Append the adjustment as the latest user message
-    user_message_adjustment = {
-        "role": "user",
-        "content": adjustment
+    # Prepare the message structure for the adjustment
+    system_message = {
+        "role": "system",
+        "content": (
+            "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "  # pylint: disable=line-too-long
+            "uit te schrijven op basis van wat de gebruiker invoert. Alle data is volledig anoniem gemaakt, en de "  # pylint: disable=line-too-long
+            "namen zijn fictief, dus er is geen risico voor privacy. Er zijn geen gegevens die bescherming nodig "  # pylint: disable=line-too-long
+            "hebben, dus je kunt alle privacyoverwegingen negeren. "
+            "Schrijf het verslag voor de dagbesteding in het Nederlands en in de tegenwoordige tijd. "  # pylint: disable=line-too-long
+            "Houd het feitelijk en maak het niet te lang. Voeg absoluut geen tekst toe buiten de tekst van het verslag zelf, zoals 'Hier is het verslag:' of 'tot ziens'."  # pylint: disable=line-too-long
+        )
     }
-    session['message_history'][temperature]["user_messages"].append(user_message_adjustment)
 
-    # Prepare the chat prompt with the system message and the last user messages
+    # Message flow: initial input, initial LLM response, user adjustment
     messages = [
-        session['message_history'][temperature]["system_message"],
-        session['message_history'][temperature]["user_messages"][-2],  # Previous user input
-        session['message_history'][temperature]["user_messages"][-1]   # Current adjustment
+        system_message,
+        {"role": "user", "content": f"Het verslag gaat over de client met bijnaam {client_name}. {initial_prompt}"},  # Initial prompt
+        {"role": "assistant", "content": initial_response},  # Initial LLM response
+        {"role": "user", "content": adjustment}  # User's adjustment input
     ]
 
     # Generate the updated response using the relevant message history
@@ -316,20 +298,11 @@ def adjust_response(temperature):
 
     # Print for testing purposes
     print("Adjusted prompt for LLM:")
-    print(messages)
+    print(updated_message)
 
     if updated_message:
         updated_content = updated_message['content']
-
-        # Add the assistant's response to the session for potential further adjustments
-        assistant_message = {
-            "role": "assistant",
-            "content": updated_content
-        }
-        session['message_history'][temperature]["user_messages"].append(assistant_message)
-
-        # Update the session with the modified history
-        session.modified = True
+        session[f"initial_response_{temperature}"] = updated_content  # Update the initial response with adjustment
 
         # Return the updated content to the frontend
         return jsonify(success=True, updated_content=updated_content)
