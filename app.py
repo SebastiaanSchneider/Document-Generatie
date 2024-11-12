@@ -270,7 +270,7 @@ def adjust_response(temperature):
 
     # Retrieve the initial prompt and initial LLM response from session
     initial_prompt = session.get('initial_prompt', '')  # Get initial user input
-    initial_response = session.get(f'initial_response_{temperature}', '')  # Get initial LLM response
+    initial_response = session.get(f'initial_response_{temperature}', '')  # Get initial LLM response, pylint: disable=line-too-long
 
     # Prepare the message structure for the adjustment
     system_message = {
@@ -288,7 +288,7 @@ def adjust_response(temperature):
     # Message flow: initial input, initial LLM response, user adjustment
     messages = [
         system_message,
-        {"role": "user", "content": f"Het verslag gaat over de client met bijnaam {client_name}. {initial_prompt}"},  # Initial prompt
+        {"role": "user", "content": f"Het verslag gaat over de client met bijnaam {client_name}. {initial_prompt}"},  # Initial prompt, pylint: disable=line-too-long
         {"role": "assistant", "content": initial_response},  # Initial LLM response
         {"role": "user", "content": adjustment}  # User's adjustment input
     ]
@@ -302,7 +302,7 @@ def adjust_response(temperature):
 
     if updated_message:
         updated_content = updated_message['content']
-        session[f"initial_response_{temperature}"] = updated_content  # Update the initial response with adjustment
+        session[f"initial_response_{temperature}"] = updated_content  # Update the initial response with adjustment, pylint: disable=line-too-long
 
         # Return the updated content to the frontend
         return jsonify(success=True, updated_content=updated_content)
