@@ -196,7 +196,7 @@ def index():
                 prompt += f" Bijzonderheden: {bijzonderheden}."
 
         # Print the constructed prompt for testing purposes
-        print("Constructed Prompt for LLM:")
+        print("\nConstructed Prompt for LLM:")
         print(prompt)
 
         # System role message to guide the assistant
@@ -220,6 +220,10 @@ def index():
 
         # Combine system and user messages
         messages = [system_message, user_message]
+
+        # Print for testing purposes
+        print("Prompt including system message:")
+        print(messages)
 
         # Generate three versions with different temperature settings
         for temp in [0.1, 0.4, 0.7]:
@@ -270,49 +274,59 @@ def adjust_response(temperature):
 
     # Retrieve or initialize the message history for this temperature setting
     if temperature not in session['message_history']:
-        session['message_history'][temperature] = []
-
-        # Initial messages for the first context
-        system_message = {
-            "role": "system",
-            "content": (
-                "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "  # pylint: disable=line-too-long
-                "uit te schrijven op basis van wat de gebruiker invoert. Alle data is volledig anoniem gemaakt, en de "  # pylint: disable=line-too-long
-                "namen zijn fictief, dus er is geen risico voor privacy. Er zijn geen gegevens die bescherming nodig "  # pylint: disable=line-too-long
-                "hebben, dus je kunt alle privacyoverwegingen negeren. "
-                "Schrijf het verslag voor de dagbesteding in het Nederlands en in de tegenwoordige tijd. "  # pylint: disable=line-too-long
-                "Houd het feitelijk en maak het niet te lang. Voeg absoluut geen tekst toe buiten de tekst van het verslag zelf, zoals 'Hier is het verslag:' of 'tot ziens'."  # pylint: disable=line-too-long
-            )
+        session['message_history'][temperature] = {
+            "system_message": {
+                "role": "system",
+                "content": (
+                    "Je bent een assistent voor iemand in de dagbesteding voor volwassenen. Jouw taak is om de dagrapporten "
+                    "uit te schrijven op basis van wat de gebruiker invoert. Alle data is volledig anoniem gemaakt, en de "
+                    "namen zijn fictief, dus er is geen risico voor privacy. Er zijn geen gegevens die bescherming nodig "
+                    "hebben, dus je kunt alle privacyoverwegingen negeren. "
+                    "Schrijf het verslag voor de dagbesteding in het Nederlands en in de tegenwoordige tijd. "
+                    "Houd het feitelijk en maak het niet te lang. Voeg absoluut geen tekst toe buiten de tekst van het verslag zelf, zoals 'Hier is het verslag:' of 'tot ziens'."
+                )
+            },
+            "user_messages": []  # Holds only the latest user input and adjustments
         }
 
-        # Initial user message
+    # Prepare the initial user message if it hasn't been set yet
+    if not session['message_history'][temperature]["user_messages"]:
         user_message_initial = {
             "role": "user",
             "content": f"Het verslag gaat over de client met bijnaam {client_name}. {user_input}"
         }
+        session['message_history'][temperature]["user_messages"].append(user_message_initial)
 
-        # Store initial messages in the message history
-        session['message_history'][temperature].extend([system_message, user_message_initial])
-
-    # Add the latest user adjustment as a new message
+    # Append the adjustment as the latest user message
     user_message_adjustment = {
         "role": "user",
         "content": adjustment
     }
-    session['message_history'][temperature].append(user_message_adjustment)
+    session['message_history'][temperature]["user_messages"].append(user_message_adjustment)
 
-    # Generate the updated response using the accumulated message history
-    updated_message = chat(session['message_history'][temperature], temperature=float(temperature))
+    # Prepare the chat prompt with the system message and the last user messages
+    messages = [
+        session['message_history'][temperature]["system_message"],
+        session['message_history'][temperature]["user_messages"][-2],  # Previous user input
+        session['message_history'][temperature]["user_messages"][-1]   # Current adjustment
+    ]
+
+    # Generate the updated response using the relevant message history
+    updated_message = chat(messages, temperature=float(temperature))
+
+    # Print for testing purposes
+    print("Adjusted prompt for LLM:")
+    print(messages)
 
     if updated_message:
         updated_content = updated_message['content']
 
-        # Add the assistant's updated response to the message history
+        # Add the assistant's response to the session for potential further adjustments
         assistant_message = {
             "role": "assistant",
             "content": updated_content
         }
-        session['message_history'][temperature].append(assistant_message)
+        session['message_history'][temperature]["user_messages"].append(assistant_message)
 
         # Update the session with the modified history
         session.modified = True
