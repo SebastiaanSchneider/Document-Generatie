@@ -124,6 +124,9 @@ def index():
     # Fetch all clients from the database
     clients = Client.query.order_by(Client.bijnaam).all()
 
+    # Get the current date in the desired format (e.g., "2023-10-30")
+    current_date = datetime.now().strftime("%Y-%m-%d")
+
     if request.method == 'POST':
         # Get the input text and client name from the form
         client_name = request.form['client_name']
@@ -131,7 +134,7 @@ def index():
         # Initialize the base prompt based on client presence
         if request.form.get('aanwezig') == 'Nee':
             # Scenario: Client was not present
-            prompt = "Client was niet aanwezig."
+            prompt = f"Datum {current_date}.\nClient was niet aanwezig."
 
             # Add reason for absence
             reden_afwezig = request.form.get('reden_afwezig', '').strip()
@@ -151,7 +154,7 @@ def index():
 
         elif request.form.get('aanwezig') == 'Ja':
             # Scenario: Client was present
-            prompt = "Client was aanwezig."
+            prompt = f"Datum {current_date}.\nClient was aanwezig."
 
             # Add whether the client completed the session
             dagdeel_volledig = request.form.get('dagdeel_volledig')
@@ -213,7 +216,7 @@ def index():
         # Update the prompt with the client's nickname for the user role message
         user_message = {
             "role": "user",
-            "content": f"Het verslag gaat over de client met bijnaam {client_name}. {prompt}"
+            "content": f"Het verslag gaat over de client met bijnaam {client_name}.\n{prompt}"
         }
 
         # Combine system and user messages
